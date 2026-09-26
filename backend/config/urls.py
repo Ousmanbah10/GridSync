@@ -17,7 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from database import views
 
 urlpatterns = [
+    path("api/status/", views.status),
+    path("api/import/preview/", views.preview),
+    path("api/import/commit/", views.commit),
     path("admin/", admin.site.urls),
 ]

@@ -76,3 +76,32 @@ backend/.venv/bin/python backend/manage.py setup_mongodb
 ```
 
 Creates `sources`, `projects`, `substations`, and `coordination_opportunities` with validation and indexes. It does not import spreadsheet rows. See [database field mapping](backend/database/SCHEMA.md) for the workbook analysis, field definitions, and next import step.
+
+## Excel import homepage
+
+Start Django and Vite using the commands above, then open the Vite URL. The homepage supports:
+
+1. Uploading an `.xlsx` workbook (up to 10 MB), or using the included June 2026 workbook.
+2. Standard Our Grid Future column mapping, or optional Gemini-assisted column mapping.
+3. Searching every extracted record, reviewing column mappings and warnings, then explicitly importing.
+
+To enable Gemini, set these in **`backend/.env`** and restart Django:
+
+```dotenv
+GEMINI_API_KEY=your-key-here
+GEMINI_MODEL=gemini-3.8-flash
+```
+
+The key stays on the backend. Gemini receives headings and the target field definitions, not project rows or MongoDB credentials. AI proposes mappings; the application validates them and reads the original cell values. It does not invent missing costs, dates, locations, or project facts. The standard mode works without an API key. Gemini uses Google's [structured output API](https://ai.google.dev/gemini-api/docs/generate-content/structured-output).
+
+This initial importer supports the `Planned Transmission Projects`, `Study Concepts`, and `Substations in Planned Projects` sheet names, with headings in the first populated row. AI can match renamed columns within those sheets; arbitrary workbook layouts are not supported yet. Workbook formulas use saved values, so recalculate and save in Excel first if relevant.
+
+Source identity uses the workbook's SHA-256 hash. Reimporting identical file bytes, even renamed, skips existing records and preserves later edits. A modified workbook is a separate source snapshot; cross-version reconciliation is future work. Duplicate project Record IDs block import, while duplicate substation source IDs are retained as distinct source rows with warnings. Voltage/capacity zero placeholders become unknown with their original values preserved.
+
+Previews expire after 30 minutes and are lost when Django restarts (process-local cache). Imports use insert-only upserts in batches; a failed import may be partially saved, and retrying completes it without duplicating records. The source record alone does not prove all rows finished importing.
+
+This is a **local development workspace**. API access requires `DEBUG=True` and a loopback connection, uses Django CSRF protection, and is proxied by Vite. It has no public user authentication; add authentication, shared preview storage, and a background worker before remote hosting. The Django/MongoDB backend is not a Cloudflare Worker and is not deployed through Sites.
+
+```sh
+backend/.venv/bin/python backend/manage.py test database
+```
