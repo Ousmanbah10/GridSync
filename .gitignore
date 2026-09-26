@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.sqlite3
+
+# Frontend
+node_modules/
+dist/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+.DS_Store
