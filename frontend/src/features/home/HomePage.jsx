@@ -112,7 +112,19 @@ function FeatureCard({ feature: [icon, title, text, target, action, points], ind
     observer.observe(node)
     return () => observer.disconnect()
   }, [])
-  return <article ref={ref} className={`feature ${open ? 'open' : ''} ${seen ? 'seen' : ''}`} style={{'--delay': `${(index % 3) * 90}ms`}}>
+  // Tilt toward the cursor (mouse only); CSS springs it back with a small overshoot.
+  function tilt(event) {
+    const node = ref.current
+    if (!node || event.pointerType !== 'mouse') return
+    const box = node.getBoundingClientRect()
+    const x = (event.clientX - box.left) / box.width, y = (event.clientY - box.top) / box.height
+    node.style.setProperty('--ry', `${(x - .5) * 10}deg`)
+    node.style.setProperty('--rx', `${(.5 - y) * 8}deg`)
+    node.style.setProperty('--mx', `${x * 100}%`)
+    node.style.setProperty('--my', `${y * 100}%`)
+  }
+  function untilt() { const node = ref.current; if (node) { node.style.setProperty('--rx', '0deg'); node.style.setProperty('--ry', '0deg') } }
+  return <article ref={ref} className={`feature ${open ? 'open' : ''} ${seen ? 'seen' : ''}`} style={{'--delay': `${(index % 3) * 90}ms`}} onPointerMove={tilt} onPointerLeave={untilt}>
     <button className="feature-toggle" aria-expanded={open} onClick={onToggle}>
       <span className="feature-icon"><Icon name={icon} size={22} /></span>
       <span className="feature-text"><h3>{title}</h3><p>{text}</p></span>

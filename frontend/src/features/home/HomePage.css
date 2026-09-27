@@ -46,14 +46,24 @@
 .section-head p { font-size: 16px; color: var(--muted); line-height: 1.6; }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .feature-toggle { min-height: 142px; }
-.feature { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; opacity: 0; transform: translateY(18px);
-  transition: opacity .55s ease-out var(--delay), transform .55s ease-out var(--delay), border-color .25s, box-shadow .25s; }
-.feature.seen { opacity: 1; transform: none; }
-.feature.seen:hover { border-color: #bcd0fb; box-shadow: var(--shadow); transform: translateY(-3px); transition-delay: 0s; }
-.feature.open { border-color: var(--accent); box-shadow: 0 12px 32px rgb(37 99 235 / 14%); }
+.feature { --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 50%; --lift: 0px; position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; opacity: 0;
+  transform: perspective(900px) translateY(18px); transform-style: preserve-3d;
+  transition: opacity .55s ease-out var(--delay), transform .6s cubic-bezier(.34, 1.56, .64, 1) var(--delay), border-color .3s, box-shadow .4s; }
+.feature.seen { opacity: 1; transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift)); }
+/* Springy lift and tilt, a soft glow that follows the cursor, and a gradient top edge. */
+.feature.seen:hover { --lift: -8px; transition-delay: 0s; border-color: #cfe0f5; box-shadow: 0 24px 48px -12px rgb(15 23 42 / 22%), 0 8px 16px -8px rgb(37 99 235 / 18%); }
+.feature::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; z-index: 2; background: linear-gradient(90deg, #22c55e, #2563eb); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); }
+.feature:hover::before, .feature.open::before { transform: scaleX(1); }
+.feature::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgb(34 197 94 / 11%), rgb(37 99 235 / 6%) 40%, transparent 70%); }
+.feature:hover::after { opacity: 1; }
+.feature > * { position: relative; z-index: 1; }
+.feature.open { border-color: var(--accent); box-shadow: 0 16px 36px rgb(37 99 235 / 16%); }
 .feature-toggle { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: start; width: 100%; padding: 24px; border: 0; background: none; text-align: left; }
-.feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); transition: background .25s, color .25s, transform .35s; }
-.feature.open .feature-icon, .feature:hover .feature-icon { background: var(--accent); color: #fff; }
+.feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); transition: background .25s, color .25s, box-shadow .3s, transform .5s cubic-bezier(.34, 1.56, .64, 1); }
+.feature.open .feature-icon, .feature:hover .feature-icon { background: var(--accent); color: #fff; box-shadow: 0 8px 18px -6px rgb(37 99 235 / 55%); }
+.feature:hover .feature-icon { transform: translateZ(24px) scale(1.06); }
+.feature:hover .feature-plus { border-color: var(--accent); background: var(--accent-soft); }
 .feature.open .feature-icon { transform: rotate(-8deg) scale(1.05); }
 .feature-text h3 { font-size: 17px; margin-bottom: 6px; }
 .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.55; }
@@ -107,7 +117,7 @@
   .section { padding: 56px 0; }
   .feature-grid, .band-list { grid-template-columns: 1fr; }
 }
-@media (prefers-reduced-motion: reduce) { .feature { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .feature, .feature.seen, .feature.seen:hover { opacity: 1; transform: none; } }
 .site-photo { margin: 28px 0 0; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
 .site-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .6s ease; }
 .site-photo:hover img { transform: scale(1.04); }
