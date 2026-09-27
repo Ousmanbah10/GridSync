@@ -4,4 +4,4 @@ export const CONTACT = {
   email: 'ousmanbah3903244@gmail.com',
 }
 
-export const NAV = [['home', 'Home'], ['overview', 'Map'], ['coordination', 'Coordination'], ['consultation', 'AI Analysis'], ['projects', 'Projects']]
+export const NAV = [['home', 'Home'], ['overview', 'Map'], ['coordination', 'Coordination'], ['projects', 'Projects']]

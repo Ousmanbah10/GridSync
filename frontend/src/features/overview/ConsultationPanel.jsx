@@ -9,7 +9,7 @@ import './ConsultationPanel.css'
 
 const TABS = [['summary', 'Executive Summary'], ['resources', 'Resource Opportunities'], ['risks', 'Risks & Considerations'], ['steps', 'Recommended Next Steps']]
 
-export default function ConsultationPanel({ data, loading, opportunities, selectedId, onSelect, onOpenProject }) {
+export default function ConsultationPanel({ data, loading, opportunities, selectedId, onOpenProject, onBack }) {
   const ranked = [...opportunities].sort(byProximity)
   const active = ranked.find(o => o.id === selectedId) || ranked[0]
   const byId = new Map(data?.projects.map(p => [p.project_record_id, p]) || [])
@@ -50,10 +50,9 @@ export default function ConsultationPanel({ data, loading, opportunities, select
 
   return <div className="consultation">
     <div className="consult-toolbar no-print">
-      <label className="field pair-picker">Project pair<select value={active.id} onChange={e => onSelect(e.target.value)}>{ranked.map(o => <option key={o.id} value={o.id}>{o.project_names?.join(' – ')} · {distanceLabel(o)}</option>)}</select></label>
+      {onBack && <button className="btn btn-ghost back-to" onClick={onBack}><Icon name="arrowLeft" size={15} />Back to coordination</button>}
       <div className="consult-actions">
         <button className="btn" onClick={() => window.print()} disabled={!analysis}><Icon name="download" size={15} />Export Report</button>
-        <button className="btn btn-primary" onClick={generate} disabled={state.busy || pending || !state.configured}>{state.busy ? <><span className="spinner light" />Analyzing…</> : <><Icon name={analysis ? 'refresh' : 'chat'} size={15} />{analysis ? 'Regenerate analysis' : 'Generate analysis'}</>}</button>
       </div>
     </div>
     {!state.configured && <div className="notice notice-info">Add a Gemini API key and model to backend/.env to generate analyses. Screening facts below still come from your data.</div>}

@@ -55,6 +55,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
           <div className="comparison-title"><h2>{active.project_names?.join(' – ')}</h2></div>
         </div>
         <div className="comparison-actions">
+          <button className="btn btn-outline" onClick={() => onAnalyze(active.id)}><Icon name="chat" size={15} />View AI Analysis</button>
           <button className="btn btn-primary" onClick={() => setDraft('plan')}><Icon name="mail" size={15} />Contact & Invite</button>
         </div>
       </header>
@@ -83,7 +84,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
       </div>
 
       <section className="card">
-        <header className="card-header"><div><h2>Potential Shared Resources</h2><p>Based on the distance band. Each needs engineering and ownership review.</p></div><button className="btn btn-sm" onClick={() => onAnalyze(active.id)}><Icon name="chat" size={14} />AI analysis</button></header>
+        <header className="card-header"><div><h2>Potential Shared Resources</h2><p>Based on the distance band. Each needs engineering and ownership review.</p></div></header>
         <ul className="resources">{actions.map(resource => <li key={resource}><span><Icon name={resourceIcon(resource)} size={26} /></span>{capitalize(resource)}</li>)}{!actions.length && <li className="muted">None identified for this pair.</li>}</ul>
       </section>
 

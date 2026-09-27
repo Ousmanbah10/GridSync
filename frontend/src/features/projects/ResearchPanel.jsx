@@ -35,7 +35,7 @@ export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiCo
 
   return <section className="card research">
     <header className="card-header">
-      <div><h2>Web research</h2><p>Gemini searches Google and the project's source links for dates, budget, and permits</p></div>
+      <div><h2>Web research</h2><p>Search the web for dates, budget, and permits</p></div>
       <button className="btn btn-primary" onClick={research} disabled={busy || !aiConfigured}>
         {busy ? <><span className="spinner light" />Searching the web…</> : <><Icon name={run ? 'refresh' : 'search'} size={15} />{run ? 'Search again' : 'Search the web'}</>}
       </button>

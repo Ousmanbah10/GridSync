@@ -13,7 +13,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   function navigate(next) { setPage(next); setMenuOpen(false); window.scrollTo({top: 0, behavior: 'instant'}) }
   function openProject(id) { setProjectId(id); navigate('project-detail') }
-  const active = ['project-detail', 'import'].includes(page) ? 'projects' : page
+  const active = ['project-detail', 'import'].includes(page) ? 'projects' : page === 'consultation' ? 'coordination' : page
   const link = id => ({href: `#${id}`, onClick: e => {e.preventDefault(); navigate(id)}})
   return <div className="app">
     <a className="skip-link" href="#main-content">Skip to content</a>

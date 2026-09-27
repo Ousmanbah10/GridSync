@@ -1,5 +1,6 @@
 .consultation { display: flex; flex-direction: column; gap: 16px; }
-.consult-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.consult-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.back-to { padding-left: 4px; }
 .pair-picker { flex: 1; max-width: 640px; }
 .consult-actions { display: flex; gap: 8px; }
 .spinner.light { border-color: rgb(255 255 255 / 35%); border-top-color: #fff; }

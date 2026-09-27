@@ -144,7 +144,7 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
       {filtered && <div className="notice notice-info">Map filters are active, so only pairs involving matching projects are listed.<button className="btn btn-sm" onClick={resetFilters}>Clear filters</button></div>}
       {mode === 'coordination'
         ? <CoordinationPanel onOpenProject={onOpenProject} key={`${source}:${scope}`} data={data} loading={loading} opportunities={opportunities} selectedId={selectedId} onSelect={selectOpportunity} onMap={id => {setSelectedId(id); onNavigate('overview')}} onAnalyze={id => {setSelectedId(id); onNavigate('consultation')}} />
-        : <ConsultationPanel data={data} loading={loading} opportunities={opportunities} selectedId={selectedId} onSelect={setSelectedId} onOpenProject={onOpenProject} />}
+        : <ConsultationPanel data={data} loading={loading} opportunities={opportunities} selectedId={selectedId} onOpenProject={onOpenProject} onBack={() => onNavigate('coordination')} />}
     </>}
   </div>
 }
