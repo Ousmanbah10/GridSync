@@ -198,3 +198,74 @@ class PairAnalysisTests(SimpleTestCase):
             self.db.coordination_opportunities.find_one.return_value = None
             self.assertEqual(self.client.get(f'/api/opportunities/{self.oid}/analysis/').status_code, 404)
             self.assertEqual(self.client.get('/api/opportunities/nope/analysis/').status_code, 400)
+
+
+from datetime import datetime, timezone
+from .documents import (dominion_enrichment, georgia_enrichment, index_by_title, normalize_title,
+                        parse_dominion, parse_georgia)
+
+DESC_PAGE = """Project 10 of 44
+Dominion Energy South Carolina
+Planned Transmission Projects $2M and above Total
+5 Year Budget
+Okatie-Bluffton 115kV: Rebuild
+Project ID
+6808 S
+Project Description
+Replace wooden H-Frame structures.
+Project Need
+End of life.
+Project Status
+In Progress
+Planned In-Service Date
+06/01/2025
+Estimated Project Cost
+Previous 2024 2025 2026 2027 2028 Total*
+$6,660,000
+$26,800,000
+$7,200,000
+$0 $0 $0 $40,660,000
+*Total Estimated Amount applied to 2025 Rate Base Calculation"""
+GA_PAGE = """2024 GA ITS Ten-Year Plan (2025-2034) Page 57 of 304
+SAV: MCINTOSH - PURRYSBURG 230KV REACTORS
+Teams # 20277
+Need Date 06/01/2026 Start Date 01/01/2024
+Description
+Estimated Cost – GPC REDACTED
+* The ITS Assigned designation is for parity forecast purposes only
+Install reactors on the McIntosh - Purrysburg 230kV tie lines.
+REDACTED
+No Change"""
+
+
+class DocumentTests(SimpleTestCase):
+    def test_title_key_ignores_spacing_and_punctuation(self):
+        self.assertEqual(normalize_title('Okatie-Bluffton 115 kV: Rebuild'), normalize_title('Okatie-Bluffton 115kV: Rebuild'))
+
+    def test_dominion_cost_schedule_and_estimated_window(self):
+        [entry] = parse_dominion(['', DESC_PAGE], 'desc.pdf')
+        self.assertEqual((entry['title'], entry['page'], entry['cost']['total']), ('Okatie-Bluffton 115kV: Rebuild', 2, 40660000.0))
+        self.assertTrue(entry['cost']['components_match'])
+        update, evidence = dominion_enrichment(entry)
+        self.assertEqual(update['construction']['basis'], 'annual_spending_schedule')
+        self.assertEqual(update['construction']['start_date'], datetime(2024, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(update['construction']['end_date'], datetime(2025, 12, 31, tzinfo=timezone.utc))
+        self.assertTrue(all(e['page'] == 2 for e in evidence))
+
+    def test_dominion_total_kept_but_flagged_when_years_do_not_add_up(self):
+        [entry] = parse_dominion([DESC_PAGE.replace('$40,660,000', '$41,000,000')], 'desc.pdf')
+        update, _ = dominion_enrichment(entry)
+        self.assertEqual(update['project_cost']['amount'], 41000000.0)
+        self.assertIn('do not add up', update['project_cost']['note'])
+
+    def test_georgia_dates_and_redacted_cost_stay_unknown(self):
+        [entry] = parse_georgia([GA_PAGE], 'irp.pdf')
+        update, _ = georgia_enrichment(entry)
+        self.assertEqual(update['construction']['start_date'], datetime(2024, 1, 1, tzinfo=timezone.utc))
+        self.assertEqual(update['construction']['end_date'], datetime(2026, 6, 1, tzinfo=timezone.utc))
+        self.assertNotIn('project_cost', update)
+        self.assertIn('redacted', update['project_cost_note'])
+
+    def test_duplicate_titles_are_ambiguous(self):
+        entry = {'key': 'x'}
+        self.assertEqual(index_by_title([entry, dict(entry)]), {})

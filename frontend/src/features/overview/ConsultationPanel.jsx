@@ -64,10 +64,10 @@ export default function ConsultationPanel({ data, loading, opportunities, select
             <div>
               <small style={{color: PAIR_COLORS[index]}}>{p.owner || 'Owner not available'}</small>
               <button className="link-plain" onClick={() => onOpenProject(p.project_record_id)}><strong>{p.project_name}</strong></button>
-              <p><Icon name="line" size={13} />{p.project_type || 'Work type not supplied'}</p>
+              <p><Icon name="line" size={13} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</p>
               <p><Icon name="calendar" size={13} />{scheduleLabel(p)}</p>
               <p><Icon name="pin" size={13} />{placeLabel(p)}</p>
-              <p><Icon name="chart" size={13} />{money(p.project_cost) ? `Est. cost ${money(p.project_cost)} (published)` : 'Cost not published'}</p>
+              <p><Icon name="chart" size={13} />{money(p.project_cost) ? `Est. cost ${money(p.project_cost)} (published)` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</p>
             </div>
           </li>)}</ul>
           <PairSketch opportunity={active} />
@@ -78,8 +78,8 @@ export default function ConsultationPanel({ data, loading, opportunities, select
         <header className="card-header"><div><h2>Budget Comparison</h2><p>Published project costs from the source records</p></div></header>
         <div className="card-body budget">
           {priced.length ? <div className="bars">{costs.map(({p, label, amount}, index) => <div className="bar-col" key={p.project_record_id}>
-            <span className="bar-value">{label || 'n/a'}</span>
-            <div className="bar-track"><b style={{height: label ? `${Math.max(4, (amount / maxCost) * 100)}%` : 0, background: PAIR_COLORS[index]}} /></div>
+            <span className="bar-value">{label || (p.project_cost_note ? 'Redacted' : 'n/a')}</span>
+            <div className="bar-track">{label ? <b style={{height: `${Math.max(4, (amount / maxCost) * 100)}%`, background: PAIR_COLORS[index]}} /> : <b className="bar-missing" />}</div>
             <small>{ownerShort(p.owner)}</small>
           </div>)}</div> : <div className="budget-empty"><Icon name="chart" size={28} /><strong>No published costs for this pair</strong><p>Neither source record includes a project budget, so savings can't be estimated from data yet. Use research on each project page to look for filed cost estimates.</p></div>}
           <div className="savings">

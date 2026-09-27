@@ -168,3 +168,23 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(response.status_code, 503)
         self.assertNotIn('secret-connection-uri', response.content.decode())
         self.assertIsNone(cache.get('import-lock'))
+
+
+class OverlapWorkbookTests(SimpleTestCase):
+    def test_endpoints_become_substations_and_blank_coordinates_stay_unmapped(self):
+        from unittest.mock import patch
+        from database.importing.overlaps import build_overlap_import
+        sheets = [{'name': 'projects', 'formulas': 0, 'rows': [
+            (1, {'A': 'project_id', 'B': 'utility', 'C': 'state', 'D': 'project_name', 'E': 'name_a', 'F': 'lat_a',
+                 'G': 'lon_a', 'H': 'name_b', 'I': 'lat_b', 'J': 'lon_b', 'K': 'in_service_date'}),
+            (2, {'A': 'GPC_2', 'B': 'Georgia Power', 'C': 'GA', 'D': 'MCINTOSH - PURRYSBURG 230KV REACTORS',
+                 'E': 'MCINTOSH', 'F': '32.352116', 'G': '-81.175112', 'H': 'PURRYSBURG', 'K': '45809'})]}]
+        with patch('database.importing.overlaps.read_workbook', return_value=(sheets, False)):
+            data = build_overlap_import(b'x', 'Projects_Overlaps.xlsx')
+        [project] = data['projects']
+        self.assertEqual((project['record_id'], project['in_service_year'], project['voltage_max_kv']), ('GPC_2', 2025, 230.0))
+        self.assertEqual(project['in_service_date'].date().isoformat(), '2025-06-01')
+        self.assertEqual(len(data['substations']), 1)
+        self.assertEqual(project['origin']['substation_id'], data['substations'][0]['_id'])
+        self.assertNotIn('substation_id', project['destination'])
+        self.assertTrue(any('PURRYSBURG' in w for w in data['warnings']))

@@ -245,3 +245,14 @@ class EligibilityTimelineTests(TestCase):
         self.assertEqual(compare_timelines(a, b)['overlap_days'], 1)
         b['construction']['start_date'] = '2030-02-01'
         self.assertFalse(compare_timelines(a, b)['overlap'])
+
+
+class EstimatedTimelineTests(TestCase):
+    def test_spending_schedule_window_marks_overlap_estimated(self):
+        from .timeline import compare_timelines
+        a = {'construction': {'start_date': '2024-01-01', 'end_date': '2025-12-31', 'basis': 'annual_spending_schedule'}}
+        b = {'construction': {'start_date': '2024-01-01', 'end_date': '2026-06-01', 'basis': 'ten_year_plan_dates'}}
+        result = compare_timelines(a, b)
+        self.assertEqual((result['overlap_days'], result['estimated']), (731, True))
+        b['construction']['basis'] = a['construction']['basis'] = 'ten_year_plan_dates'
+        self.assertFalse(compare_timelines(a, b)['estimated'])

@@ -41,10 +41,14 @@ export const basisLabel = o => ({route: 'Route geometry', other_endpoints: 'Shar
 
 export function timelineSummary(opportunity) {
   const timeline = opportunity?.timeline
-  if (timeline?.overlap != null) return {
-    title: 'Construction overlap',
-    value: timeline.overlap ? `${timeline.overlap_days} days overlap` : 'No construction overlap',
-    detail: timeline.overlap ? `${timeline.start_date} → ${timeline.end_date}` : 'Based on supplied construction dates.',
+  if (timeline?.overlap != null) {
+    const basis = timeline.estimated ? 'At least one window is estimated from a published spending schedule.' : 'Based on documented construction dates.'
+    return {
+      title: 'Construction overlap',
+      value: (timeline.overlap ? `${timeline.overlap_days} days overlap` : 'No construction overlap') + (timeline.estimated ? ' (est.)' : ''),
+      detail: timeline.overlap ? `${timeline.start_date} → ${timeline.end_date}. ${basis}` : basis,
+      estimated: !!timeline.estimated,
+    }
   }
   const years = opportunity?.in_service_years || []
   const valid = year => Number.isInteger(year) && year >= 1900 && year <= 2200
@@ -105,6 +109,7 @@ export const priorityLabel = o => (o?.priority ?? 9) <= 2 ? ['High priority', 'c
 // Short schedule line for list rows and the timeline card.
 export function overlapLabel(o) {
   const t = o?.timeline
-  if (t?.overlap && t.overlap_days != null) return `${Math.max(1, Math.round(t.overlap_days / 30.4))} months overlap`
+  if (t?.overlap && t.overlap_days != null) return `${Math.max(1, Math.round(t.overlap_days / 30.4))} months overlap${t.estimated ? ' (est.)' : ''}`
+  if (t?.overlap === false) return `No construction overlap${t.estimated ? ' (est.)' : ''}`
   return timelineSummary(o).value
 }

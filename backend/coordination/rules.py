@@ -61,8 +61,9 @@ def coordination_score(left, right, distance_km, shared_substation, timeline, ot
 
     if timeline.get('overlap') is not None:
         parts['timeline'] = TIMELINE_POINTS if timeline['overlap'] else 0
-        parts['timeline_basis'] = 'construction_dates'
-        notes.append('Construction dates overlap.' if timeline['overlap'] else 'Construction dates do not overlap.')
+        parts['timeline_basis'] = 'construction_estimate' if timeline.get('estimated') else 'construction_dates'
+        label = 'Estimated construction windows' if timeline.get('estimated') else 'Construction dates'
+        notes.append(f'{label} overlap by {timeline["overlap_days"]} days.' if timeline['overlap'] else f'{label} do not overlap.')
     else:
         ya, yb = left.get('in_service_year'), right.get('in_service_year')
         if ya and yb:

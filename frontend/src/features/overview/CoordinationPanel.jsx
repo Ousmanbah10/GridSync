@@ -44,7 +44,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
             <div className="candidate-title"><strong>{o.project_names?.join(' – ')}</strong><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
             <small className="candidate-owners">{ownerShort(o.owners?.[0])} <Icon name="link" size={12} /> {ownerShort(o.owners?.[1])}</small>
             <small>{distanceLabel(o)} · {overlapLabel(o)}</small>
-            <div className="candidate-tags">{o.project_record_ids.map(id => <span key={id}>{byId.get(id)?.project_type?.split(';')[0] || 'Type n/a'}</span>)}</div>
+            {o.project_record_ids.some(id => byId.get(id)?.project_type) && <div className="candidate-tags">{o.project_record_ids.map(id => byId.get(id)?.project_type && <span key={id}>{byId.get(id).project_type.split(';')[0]}</span>)}</div>}
           </div>
         </button>)}
         {!loading && !rows.length && <p className="empty"><strong>No eligible pairs</strong>Choose another project or clear the filters.</p>}
@@ -74,10 +74,10 @@ export default function CoordinationPanel({ data, loading, opportunities, select
           <header><span className="org-mark" style={{background: PAIR_COLORS[index]}}>{initials(p.owner)}</span><strong>{p.owner || 'Owner not available'}</strong></header>
           <h3>{p.project_name}</h3>
           <ul>
-            <li><Icon name="line" size={15} />{p.project_type || 'Work type not supplied'}{p.voltage_max_kv ? ` · ${p.voltage_max_kv} kV` : ''}</li>
-            <li><Icon name="calendar" size={15} />{p.construction?.start_date ? `${displayDate(p.construction.start_date)} → ${displayDate(p.construction.end_date) || '?'}` : scheduleLabel(p)}</li>
+            <li><Icon name="line" size={15} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</li>
+            <li><Icon name="calendar" size={15} />{p.construction?.start_date ? `${displayDate(p.construction.start_date)} → ${displayDate(p.construction.end_date) || '?'}${p.construction.basis === 'annual_spending_schedule' ? ' (est.)' : ''}` : scheduleLabel(p)}</li>
             <li><Icon name="pin" size={15} />{placeLabel(p)}</li>
-            {money(p.project_cost) && <li><Icon name="chart" size={15} />{money(p.project_cost)} published cost</li>}
+            <li><Icon name="chart" size={15} />{money(p.project_cost) ? `${money(p.project_cost)} estimated cost` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</li>
           </ul>
           <button className="btn btn-sm btn-outline" onClick={() => onOpenProject(p.project_record_id)}>View Project<Icon name="arrowRight" size={13} /></button>
         </article>)}
@@ -113,8 +113,8 @@ const validYear = y => Number.isInteger(y) && y >= 1900 && y <= 2200
 
 // Shared year axis for both projects. Missing data is shown as missing, never guessed.
 function Timeline({ projects, timeline }) {
-  const rows = projects.map(p => ({ start: parse(p?.construction?.start_date), end: parse(p?.construction?.end_date), service: validYear(p?.in_service_year) ? p.in_service_year : null }))
-  const years = rows.flatMap(r => [r.start && new Date(r.start).getUTCFullYear(), r.end && new Date(r.end).getUTCFullYear(), r.service]).filter(Boolean)
+  const rows = projects.map(p => ({ start: parse(p?.construction?.start_date), end: parse(p?.construction?.end_date), service: parse(p?.in_service_date) || (validYear(p?.in_service_year) ? yearStart(p.in_service_year) : null), serviceLabel: p?.in_service_date ? String(p.in_service_date).slice(0, 10) : p?.in_service_year, estimated: p?.construction?.basis === 'annual_spending_schedule' }))
+  const years = rows.flatMap(r => [r.start, r.end, r.service].filter(Boolean).map(t => new Date(t).getUTCFullYear()))
   if (!years.length) return <p className="empty">Neither project supplies construction dates or an in-service year.</p>
   let first = Math.min(...years), last = Math.max(...years) + 1
   if (last - first < 4) { first -= Math.floor((4 - (last - first)) / 2); last = first + 4 }
@@ -129,10 +129,10 @@ function Timeline({ projects, timeline }) {
       <div className="timeline-track">
         {ticks.map(y => <i key={y} className="timeline-grid" style={{left: at(yearStart(y))}} />)}
         {overlap && <b className="timeline-overlap" style={{left: at(parse(timeline.start_date)), width: `calc(${at(parse(timeline.end_date))} - ${at(parse(timeline.start_date))})`}} />}
-        {r.start && r.end && <b className="timeline-bar" style={{left: at(r.start), width: `calc(${at(r.end)} - ${at(r.start)})`, background: PAIR_COLORS[index]}} />}
-        {r.service && <span className="timeline-service" style={{left: at(yearStart(r.service)), '--pair': PAIR_COLORS[index]}} title={`In service ${r.service}`}><em>{r.service}</em></span>}
+        {r.start && r.end && <b className={`timeline-bar ${r.estimated ? 'estimated' : ''}`} title={r.estimated ? 'Estimated from the published spending schedule' : 'Documented project dates'} style={{left: at(r.start), width: `calc(${at(r.end)} - ${at(r.start)})`, '--bar': PAIR_COLORS[index]}} />}
+        {r.service && <span className="timeline-service" style={{left: at(r.service), '--pair': PAIR_COLORS[index]}} title={`In service ${r.serviceLabel}`}><em>{String(r.serviceLabel).slice(0, 7)}</em></span>}
       </div>
     </div>)}
-    <div className="timeline-legend"><span><b className="timeline-bar-key" />Construction{rows.some(r => r.start && r.end) ? '' : ' (not supplied)'}</span><span><i className="timeline-service-key" />In-service target</span>{overlap && <span><b className="timeline-overlap-key" />Overlap · {timeline.overlap_days} days</span>}</div>
+    <div className="timeline-legend"><span><b className="timeline-bar-key" />Construction{rows.some(r => r.start && r.end) ? '' : ' (not supplied)'}</span><span><i className="timeline-service-key" />In-service target</span>{rows.some(r => r.estimated) && <span><b className="timeline-bar-key estimated" />Estimated from spending schedule</span>}{overlap && <span><b className="timeline-overlap-key" />Overlap · {timeline.overlap_days} days</span>}</div>
   </div>
 }
