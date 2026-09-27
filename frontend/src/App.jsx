@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import HomePage from './features/home/HomePage'
 import ProjectsPage from './features/projects/ProjectsPage'
 import ProjectDetail from './features/projects/ProjectDetail'
@@ -11,14 +11,6 @@ export default function App() {
   const [page, setPage] = useState('home')
   const [projectId, setProjectId] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [api, setApi] = useState(null)
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/status/').then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { if (!cancelled) setApi(data.database_ready ? 'ok' : 'down') })
-      .catch(() => { if (!cancelled) setApi('down') })
-    return () => { cancelled = true }
-  }, [])
   function navigate(next) { setPage(next); setMenuOpen(false); window.scrollTo({top: 0, behavior: 'instant'}) }
   function openProject(id) { setProjectId(id); navigate('project-detail') }
   const active = ['project-detail', 'import'].includes(page) ? 'projects' : page
@@ -26,11 +18,10 @@ export default function App() {
   return <div className="app">
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="navbar"><div className="navbar-inner">
-      <a className="brand" {...link('home')}><img src="/gridsync-mark.svg" alt="" /><span>GridSync</span></a>
+      <a className="brand" {...link('home')}><img src="/gridsync-mark.svg" alt="" /><span>Grid<b>Sync</b></span></a>
       <nav className={`navlinks ${menuOpen ? 'open' : ''}`} id="main-nav" aria-label="Main navigation">{NAV.map(([id, title]) =>
         <a key={id} {...link(id)} aria-current={active === id ? 'page' : undefined}>{title}</a>)}</nav>
       <div className="navbar-actions">
-        <span className={`api-status ${api || ''}`} title={api === 'ok' ? 'Backend and database connected' : 'Backend or database unavailable'}><i /><span>{api === 'ok' ? 'Live data' : api === 'down' ? 'Offline' : 'Connecting'}</span></span>
         <button className="btn btn-sm" onClick={() => navigate('import')}><Icon name="upload" size={14} />Import data</button>
         <button className="icon-button menu-toggle" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="main-nav" onClick={() => setMenuOpen(o => !o)}><Icon name={menuOpen ? 'close' : 'menu'} size={20} /></button>
       </div>
@@ -44,7 +35,7 @@ export default function App() {
 
     <footer className="footer"><div className="footer-inner">
       <div className="footer-brand">
-        <a className="brand" {...link('home')}><img src="/gridsync-mark.svg" alt="" /><span>GridSync</span></a>
+        <a className="brand" {...link('home')}><img src="/gridsync-mark.svg" alt="" /><span>Grid<b>Sync</b></span></a>
         <p>Find where planned transmission projects meet, so utilities can share land, crews, and equipment before construction begins.</p>
       </div>
       <nav className="footer-col" aria-label="Footer"><h3>Product</h3>{NAV.map(([id, title]) => <a key={id} {...link(id)}>{title}</a>)}<a {...link('import')}>Import data</a></nav>
