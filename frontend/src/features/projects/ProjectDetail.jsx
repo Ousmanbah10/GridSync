@@ -3,6 +3,7 @@ import Icon from '../../ui/Icon'
 import { costTag, initials, money, routeLabel, scoreClass } from '../../ui/format'
 import { request, sourceUrl } from './api'
 import { bandName, delayLabel, miles, scheduleTag, PAIR_COLORS } from '../overview/model'
+import ResearchPanel from './ResearchPanel'
 import './ProjectsPage.css'
 
 const EVIDENCE_LABELS = {project_cost: 'Estimated cost', construction: 'Construction window', in_service_date: 'In-service date'}
@@ -78,6 +79,8 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
                 <Icon name="arrowRight" size={15} />
               </button></li>)}</ul> : <p className="empty">No coordination candidates for this project.</p>}
           </section>
+
+          <ResearchPanel projectId={projectId} runs={data.runs} csrf={data.csrf_token} aiConfigured={data.ai_configured} />
 
           <section className="card">
             <header className="card-header"><h2>Project details</h2></header>

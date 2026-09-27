@@ -87,9 +87,31 @@ def detail(request, project_id):
                          'ai_configured': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL)})
 
 
+def client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+
+
+def over_public_limit(request):
+    """Per-visitor hourly cap on new AI analyses for public deployments; local use is unlimited."""
+    if is_local(request):
+        return False
+    key = 'analysis-rate:' + client_ip(request)
+    cache.add(key, 0, 3600)
+    try:
+        count = cache.incr(key)
+    except ValueError:
+        cache.set(key, 1, 3600)
+        count = 1
+    return count > settings.PUBLIC_ANALYSIS_PER_HOUR
+
+
 @require_POST
 @local_api
+@public_post
 def research(request, project_id):
+    if over_public_limit(request):
+        return JsonResponse({'error': 'Research limit reached for now. Try again later.'}, status=429)
     options = body(request)
     search = options.get('search', True)
     if not isinstance(search, bool): raise ValueError('search must be true or false.')
@@ -169,25 +191,6 @@ def _savings(request):
     levers = [{'title': str(l.get('title'))[:80], 'amount': round(float(l['amount']), 2)}
               for l in data.get('levers', [])[:6] if isinstance(l, dict) and isinstance(l.get('amount'), (int, float))]
     return numbers | {'levers': levers, 'schedule': str(data.get('schedule', ''))[:120], 'basis': 'planning assumptions (screening estimate)'} if numbers else None
-
-
-def client_ip(request):
-    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
-    return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
-
-
-def over_public_limit(request):
-    """Per-visitor hourly cap on new AI analyses for public deployments; local use is unlimited."""
-    if is_local(request):
-        return False
-    key = 'analysis-rate:' + client_ip(request)
-    cache.add(key, 0, 3600)
-    try:
-        count = cache.incr(key)
-    except ValueError:
-        cache.set(key, 1, 3600)
-        count = 1
-    return count > settings.PUBLIC_ANALYSIS_PER_HOUR
 
 
 @local_api

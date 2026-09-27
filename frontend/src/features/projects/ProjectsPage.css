@@ -112,3 +112,26 @@
 .changes small { font-size: 12px; color: var(--muted); }
 .projects-table .delay-chip { margin-top: 4px; height: 20px; font-size: 11px; background: var(--danger-soft); color: var(--danger); }
 .projects-table .delay-chip.advanced { background: var(--ok-soft); color: var(--ok-ink); }
+.research .card-header .btn { flex-shrink: 0; }
+.research-notice { margin: 14px 20px 0; }
+.research-wait { padding: 12px 20px 0; font-size: 13px; color: var(--muted); }
+.research-body { padding: 14px 20px 18px; display: flex; flex-direction: column; gap: 12px; }
+.research-meta { font-size: 13px; color: var(--muted); }
+.findings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.findings li { padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: var(--radius-sm); background: var(--surface); }
+.findings li.reviewed { border-left-color: var(--ok); }
+.findings li.rejected { border-left-color: var(--faint); opacity: .7; }
+.finding-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.finding-field { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.finding-head strong { font-size: 15px; }
+.finding-head .chip { margin-left: auto; }
+.findings blockquote { margin: 10px 0; padding: 8px 12px; border-left: 2px solid var(--line-strong); background: var(--surface-2); font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+.finding-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.finding-sources { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; }
+.finding-sources a { display: inline-flex; align-items: center; gap: 4px; }
+.finding-actions { display: flex; gap: 6px; }
+.finding-note { display: block; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.research-missing { font-size: 13px; color: var(--muted); }
+.research-details summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--accent); }
+.research-details ul { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
+.research-report { margin-top: 8px; white-space: pre-wrap; font-size: 13px; line-height: 1.6; color: var(--ink-2); max-height: 360px; overflow: auto; }

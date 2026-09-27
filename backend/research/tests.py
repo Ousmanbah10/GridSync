@@ -308,7 +308,7 @@ class PublicDeploymentTests(SimpleTestCase):
         with patch('research.views.get_database', return_value=self.db):
             self.assertEqual(self.client.get(f'/api/projects/{PROJECT["_id"]}/', **self.REMOTE).status_code, 200)
         self.assertEqual(self.client.post('/api/import/commit/', data='{}', content_type='application/json', **self.REMOTE).status_code, 403)
-        self.assertEqual(self.client.post(f'/api/projects/{PROJECT["_id"]}/research/', data='{}', content_type='application/json', **self.REMOTE).status_code, 403)
+        self.assertEqual(self.client.post(f'/api/projects/{PROJECT["_id"]}/research/123/review/', data='{}', content_type='application/json', **self.REMOTE).status_code, 403)
 
     def test_public_analysis_is_rate_limited_per_visitor(self):
         with patch('research.views.get_database', return_value=self.db), patch(
