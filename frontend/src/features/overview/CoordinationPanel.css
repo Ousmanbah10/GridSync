@@ -1,7 +1,7 @@
 .coordination { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
 
 /* Candidate list */
-.candidates { position: sticky; top: 84px; display: flex; flex-direction: column; max-height: calc(100vh - 104px); overflow: hidden; }
+.candidates { position: sticky; top: 92px; display: flex; flex-direction: column; max-height: calc(100vh - 112px); overflow: hidden; }
 .candidates-controls { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-bottom: 1px solid var(--line); }
 .candidates-count { padding: 8px 16px; font-size: 12px; font-weight: 500; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--surface-2); }
 .candidates-list { overflow-y: auto; flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
