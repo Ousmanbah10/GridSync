@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { fieldLabel, post, sourceUrl } from './api'
 import { hostname } from '../../ui/format'
@@ -12,9 +12,21 @@ const OUTCOMES = {
 const STATUS = {pending: ['Pending review', 'chip-warn'], reviewed: ['Accepted', 'chip-ok'], rejected: ['Rejected', 'chip']}
 
 // Gemini + Google Search research for one project. Results are proposals; imported data is never changed.
-export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiConfigured }) {
+export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiConfigured, running: initiallyRunning }) {
   const [runs, setRuns] = useState(initialRuns || [])
   const [busy, setBusy] = useState(false)
+  // A search started earlier (e.g. before leaving this page) keeps running on the server; wait for it here.
+  const [waiting, setWaiting] = useState(!!initiallyRunning)
+  useEffect(() => {
+    if (!waiting) return
+    const timer = setInterval(async () => {
+      try {
+        const data = await fetch(`/api/projects/${projectId}/`).then(r => r.json())
+        if (!data.research_running) { setRuns(data.runs || []); setWaiting(false) }
+      } catch { /* keep waiting */ }
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [waiting, projectId])
   const [error, setError] = useState('')
   const run = runs[0]
   async function research() {
@@ -36,13 +48,13 @@ export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiCo
   return <section className="card research">
     <header className="card-header">
       <div><h2>Web research</h2><p>Search the web for dates, budget, and permits</p></div>
-      <button className="btn btn-primary" onClick={research} disabled={busy || !aiConfigured}>
-        {busy ? <><span className="spinner light" />Searching the web…</> : <><Icon name={run ? 'refresh' : 'search'} size={15} />{run ? 'Search again' : 'Search the web'}</>}
+      <button className="btn btn-primary" onClick={research} disabled={busy || waiting || !aiConfigured}>
+        {busy || waiting ? <><span className="spinner light" />Searching the web…</> : <><Icon name={run ? 'refresh' : 'search'} size={15} />{run ? 'Search again' : 'Search the web'}</>}
       </button>
     </header>
     {error && <div className="notice notice-error research-notice" role="alert">{error}</div>}
-    {busy && <p className="research-wait">This usually takes 20–60 seconds.</p>}
-    {!run && !busy && <p className="empty">No research yet. Click <b>Search the web</b> to look for construction dates, budget, and permits.</p>}
+    {(busy || waiting) && <p className="research-wait">{waiting && !busy ? 'A search for this project is still running. Results will appear here when it finishes.' : 'This usually takes 20–60 seconds. You can leave this page; results are saved when the search finishes.'}</p>}
+    {!run && !busy && !waiting && <p className="empty">No research yet. Click <b>Search the web</b> to look for construction dates, budget, and permits.</p>}
     {run && <div className="research-body">
       <p className="research-meta">{new Date(run.created_at).toLocaleString()} · {OUTCOMES[run.outcome] || run.outcome}</p>
       {run.findings?.length > 0 && <ul className="findings">{run.findings.map(f => { const [label, cls] = STATUS[f.review_status] || STATUS.pending; return <li key={f.id} className={f.review_status}>

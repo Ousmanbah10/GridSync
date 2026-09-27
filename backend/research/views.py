@@ -83,6 +83,7 @@ def detail(request, project_id):
                         'coordination_score': pair.get('coordination_score', pair.get('distance_score')),
                         'timeline': public(pair.get('timeline'))})
     return JsonResponse({'project': public(project), 'runs': public(runs), 'related_opportunities': related,
+                         'research_running': bool(cache.get('project-research:' + project_id)),
                          'csrf_token': get_token(request),
                          'ai_configured': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL)})
 
@@ -205,6 +206,7 @@ def pair_analysis(request, opportunity_id):
     if request.method == 'GET':
         saved = db.coordination_analyses.find_one({'opportunity_id': opportunity['_id']}, sort=[('created_at', -1)])
         return JsonResponse({'analysis': public(saved) if saved else None, 'csrf_token': get_token(request),
+                             'running': bool(cache.get('pair-analysis:' + opportunity_id)),
                              'ai_configured': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL)})
     if over_public_limit(request):
         return JsonResponse({'error': 'Analysis limit reached for now. Saved analyses are still available; try again later.'}, status=429)

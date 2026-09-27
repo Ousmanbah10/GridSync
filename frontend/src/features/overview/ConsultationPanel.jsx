@@ -25,10 +25,22 @@ export default function ConsultationPanel({ data, loading, opportunities, select
     const abort = new AbortController()
     fetch(`/api/opportunities/${activeId}/analysis/`, { signal: abort.signal })
       .then(async r => { const body = await r.json().catch(() => ({})); if (!r.ok) throw new Error(body.error || 'The saved analysis could not be loaded.'); return body })
-      .then(body => setState({ id: activeId, analysis: body.analysis, csrf: body.csrf_token, configured: body.ai_configured, error: '', busy: false }))
+      .then(body => setState({ id: activeId, analysis: body.analysis, csrf: body.csrf_token, configured: body.ai_configured, error: '', busy: false, waiting: !!body.running }))
       .catch(err => { if (err.name !== 'AbortError') setState(s => ({ ...s, id: activeId, analysis: null, error: err.message, busy: false })) })
     return () => abort.abort()
   }, [activeId])
+
+  // An analysis started earlier keeps running on the server; poll until it is saved.
+  useEffect(() => {
+    if (!state.waiting || state.id !== activeId) return
+    const timer = setInterval(async () => {
+      try {
+        const body = await fetch(`/api/opportunities/${activeId}/analysis/`).then(r => r.json())
+        if (!body.running) setState(s => ({ ...s, analysis: body.analysis, waiting: false }))
+      } catch { /* keep waiting */ }
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [state.waiting, state.id, activeId])
 
   async function generate() {
     setState(s => ({ ...s, busy: true, error: '' }))
@@ -105,8 +117,8 @@ export default function ConsultationPanel({ data, loading, opportunities, select
       <header className="card-header"><div><h2>AI Analysis</h2><p>{analysis ? `Generated ${new Date(analysis.created_at).toLocaleString()} · ${analysis.model} · grounded only in the saved records` : 'Grounded in the saved records and screening facts only; no web search.'}</p></div></header>
       {pending ? <p className="empty"><span className="spinner" /> Loading saved analysis…</p> : !analysis ? <div className="analysis-empty">
         <span className="analysis-empty-icon"><Icon name="chat" size={26} /></span>
-        <div><strong>No analysis for this pair yet</strong><p>Generate a brief covering shared resources, risks, and next steps for {active.owners?.join(' and ')}.</p></div>
-        <button className="btn btn-primary" onClick={generate} disabled={state.busy || !state.configured}>{state.busy ? 'Analyzing…' : 'Generate analysis'}</button>
+        <div><strong>{state.waiting ? 'Analysis in progress' : 'No analysis for this pair yet'}</strong><p>{state.waiting ? 'An analysis for this pair is still being written. It will appear here when it finishes.' : <>Generate a brief covering shared resources, risks, and next steps for {active.owners?.join(' and ')}. You can leave the page; it is saved when done.</>}</p></div>
+        <button className="btn btn-primary" onClick={generate} disabled={state.busy || state.waiting || !state.configured}>{state.busy || state.waiting ? <><span className="spinner light" />Analyzing…</> : 'Generate analysis'}</button>
       </div> : <>
         <div className="tabs no-print" role="tablist">{TABS.map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>)}</div>
         <div className="analysis-grid">

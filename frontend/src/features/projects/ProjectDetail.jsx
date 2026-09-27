@@ -79,7 +79,7 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
               </button></li>)}</ul> : <p className="empty">No coordination candidates for this project.</p>}
           </section>
 
-          <ResearchPanel projectId={projectId} runs={data.runs} csrf={data.csrf_token} aiConfigured={data.ai_configured} />
+          <ResearchPanel projectId={projectId} runs={data.runs} csrf={data.csrf_token} aiConfigured={data.ai_configured} running={data.research_running} />
 
           <section className="card">
             <header className="card-header"><h2>Project details</h2></header>
