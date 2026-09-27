@@ -134,4 +134,4 @@
 .research-missing { font-size: 13px; color: var(--muted); }
 .research-details summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--accent); }
 .research-details ul { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
-.research-report { margin-top: 8px; white-space: pre-wrap; font-size: 13px; line-height: 1.6; color: var(--ink-2); max-height: 360px; overflow: auto; }
+.research-report { margin-top: 12px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); max-height: 640px; overflow: auto; }

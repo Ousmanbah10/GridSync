@@ -1,0 +1,13 @@
+.markdown { font-size: 14px; line-height: 1.65; color: var(--ink-2); overflow-wrap: anywhere; }
+.markdown > * + * { margin-top: 10px; }
+.markdown h3 { font-size: 16px; color: var(--ink); margin-top: 22px; }
+.markdown h4 { font-size: 14px; color: var(--ink); margin-top: 16px; }
+.markdown > :first-child { margin-top: 0; }
+.markdown hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+.markdown ul, .markdown ol { margin: 0; padding-left: 22px; }
+.markdown li { margin: 4px 0; }
+.markdown li > ul, .markdown li > ol { margin-top: 4px; }
+.markdown strong { color: var(--ink); font-weight: 600; }
+.markdown em { color: var(--muted); }
+.markdown code { font: 12.5px ui-monospace, 'SF Mono', Menlo, monospace; background: var(--sunken); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+.markdown a { word-break: break-all; }

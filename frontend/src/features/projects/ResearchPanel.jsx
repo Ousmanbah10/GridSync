@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { fieldLabel, post, sourceUrl } from './api'
 import { hostname } from '../../ui/format'
+import Markdown, { Inline } from '../../ui/Markdown'
 
 const OUTCOMES = {
   proposals: 'Found facts with sources. Review them below.',
@@ -59,7 +60,7 @@ export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiCo
       <p className="research-meta">{new Date(run.created_at).toLocaleString()} · {OUTCOMES[run.outcome] || run.outcome}</p>
       {run.findings?.length > 0 && <ul className="findings">{run.findings.map(f => { const [label, cls] = STATUS[f.review_status] || STATUS.pending; return <li key={f.id} className={f.review_status}>
         <div className="finding-head"><span className="finding-field">{fieldLabel(f.field)}</span><strong>{f.value}</strong><span className={`chip ${cls}`}>{label}</span></div>
-        {f.supporting_passage && <blockquote>{f.supporting_passage}</blockquote>}
+        {f.supporting_passage && <blockquote><Inline text={f.supporting_passage} /></blockquote>}
         <div className="finding-foot">
           <span className="finding-sources">{f.source_ids.map(id => sourceById.get(id)).filter(s => s && sourceUrl(s.url)).map(s => <a key={s.id} href={s.url} target="_blank" rel="noreferrer"><Icon name="external" size={11} />{hostname(s.url)}</a>)}</span>
           <span className="finding-actions">
@@ -71,7 +72,7 @@ export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiCo
       </li> })}</ul>}
       {run.missing_fields?.length > 0 && <p className="research-missing">Not found: {run.missing_fields.map(fieldLabel).join(', ')}.</p>}
       {run.sources?.length > 0 && <details className="research-details"><summary>Sources ({run.sources.length})</summary><ul>{run.sources.filter(s => sourceUrl(s.url)).map(s => <li key={s.id}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a></li>)}</ul></details>}
-      {run.report && <details className="research-details"><summary>Full research report</summary><p className="research-report">{run.report}</p></details>}
+      {run.report && <details className="research-details" open={!run.findings?.length}><summary>Full research report</summary><div className="research-report"><Markdown text={run.report} /></div></details>}
     </div>}
   </section>
 }
