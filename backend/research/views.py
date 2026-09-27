@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_GET, require_POST
 from database.mongo import get_database
-from database.views import local_api
+from database.views import is_local, local_api, public_post
 from .ai import analyze_pair, chat, research_project
 from .evidence import public
 
@@ -171,7 +171,27 @@ def _savings(request):
     return numbers | {'levers': levers, 'schedule': str(data.get('schedule', ''))[:120], 'basis': 'planning assumptions (screening estimate)'} if numbers else None
 
 
+def client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+
+
+def over_public_limit(request):
+    """Per-visitor hourly cap on new AI analyses for public deployments; local use is unlimited."""
+    if is_local(request):
+        return False
+    key = 'analysis-rate:' + client_ip(request)
+    cache.add(key, 0, 3600)
+    try:
+        count = cache.incr(key)
+    except ValueError:
+        cache.set(key, 1, 3600)
+        count = 1
+    return count > settings.PUBLIC_ANALYSIS_PER_HOUR
+
+
 @local_api
+@public_post
 def pair_analysis(request, opportunity_id):
     """GET the latest saved brief for a candidate pair; POST generates a new one with Gemini."""
     if request.method not in ('GET', 'POST'):
@@ -183,6 +203,8 @@ def pair_analysis(request, opportunity_id):
         saved = db.coordination_analyses.find_one({'opportunity_id': opportunity['_id']}, sort=[('created_at', -1)])
         return JsonResponse({'analysis': public(saved) if saved else None, 'csrf_token': get_token(request),
                              'ai_configured': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL)})
+    if over_public_limit(request):
+        return JsonResponse({'error': 'Analysis limit reached for now. Saved analyses are still available; try again later.'}, status=429)
     projects = _analysis_projects(db, opportunity)
     if len(projects) != 2: return JsonResponse({'error': 'Both project records are required for an analysis.'}, status=409)
     lock = 'pair-analysis:' + opportunity_id

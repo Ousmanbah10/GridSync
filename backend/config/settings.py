@@ -26,13 +26,29 @@ MONGODB_DATABASE = os.environ.get("MONGODB_DATABASE", "")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hb5)!b_-3j29to=teyga@(km^o2lv3dz2w5x!t-2v78^eh@=q7"
+def env_list(name):
+    return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+# Local development needs no configuration. On a server set DJANGO_DEBUG=false,
+# DJANGO_SECRET_KEY, and DJANGO_ALLOWED_HOSTS (see backend/.env.example).
+DEBUG = os.environ.get("DJANGO_DEBUG", "true").strip().lower() == "true"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "").strip()
+if not SECRET_KEY:
+    if not DEBUG:
+        raise RuntimeError("Set DJANGO_SECRET_KEY when DJANGO_DEBUG=false.")
+    SECRET_KEY = "django-insecure-hb5)!b_-3j29to=teyga@(km^o2lv3dz2w5x!t-2v78^eh@=q7"
+
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
+if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):  # set automatically by Render
+    ALLOWED_HOSTS.append(os.environ["RENDER_EXTERNAL_HOSTNAME"])
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1", "[::1]"]
+
+# Public deployment: read-only pages open to everyone; only the pair analysis may POST (rate-limited).
+# Import, research, and review stay available only on the local development machine.
+PUBLIC_API = os.environ.get("GRIDSYNC_PUBLIC_API", "false").strip().lower() == "true"
+PUBLIC_ANALYSIS_PER_HOUR = int(os.environ.get("GRIDSYNC_PUBLIC_ANALYSIS_PER_HOUR", "5"))
 
 
 # Application definition
@@ -134,4 +150,10 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash").strip()
 DATA_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
 # Vite's local frontend sends POST requests through its backend proxy.
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5173", "http://localhost:5173"] if DEBUG else []
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS") + (["http://127.0.0.1:5173", "http://localhost:5173"] if DEBUG else [])
+
+if not DEBUG:
+    # Render terminates HTTPS at its proxy.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

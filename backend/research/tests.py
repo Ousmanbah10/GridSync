@@ -291,3 +291,29 @@ class DocumentTests(SimpleTestCase):
     def test_duplicate_titles_are_ambiguous(self):
         entry = {'key': 'x'}
         self.assertEqual(index_by_title([entry, dict(entry)]), {})
+
+
+@override_settings(DEBUG=False, PUBLIC_API=True, PUBLIC_ANALYSIS_PER_HOUR=2, ALLOWED_HOSTS=['testserver'])
+class PublicDeploymentTests(SimpleTestCase):
+    REMOTE = {'REMOTE_ADDR': '203.0.113.9'}
+
+    def setUp(self):
+        cache.clear()
+        self.db = MagicMock()
+        self.db.projects.find_one.return_value = PROJECT
+        self.db.coordination_opportunities.find_one.return_value = OPPORTUNITY
+        self.db.projects.find.return_value = [PROJECT, OTHER]
+
+    def test_reads_are_public_but_imports_and_research_are_not(self):
+        with patch('research.views.get_database', return_value=self.db):
+            self.assertEqual(self.client.get(f'/api/projects/{PROJECT["_id"]}/', **self.REMOTE).status_code, 200)
+        self.assertEqual(self.client.post('/api/import/commit/', data='{}', content_type='application/json', **self.REMOTE).status_code, 403)
+        self.assertEqual(self.client.post(f'/api/projects/{PROJECT["_id"]}/research/', data='{}', content_type='application/json', **self.REMOTE).status_code, 403)
+
+    def test_public_analysis_is_rate_limited_per_visitor(self):
+        with patch('research.views.get_database', return_value=self.db), patch(
+                'research.views.analyze_pair', return_value={'executive_summary': 'ok'}):
+            codes = [self.client.post(f'/api/opportunities/{OPPORTUNITY["_id"]}/analysis/', **self.REMOTE).status_code for _ in range(3)]
+            other = self.client.post(f'/api/opportunities/{OPPORTUNITY["_id"]}/analysis/', REMOTE_ADDR='198.51.100.4').status_code
+        self.assertEqual(codes, [201, 201, 429])
+        self.assertEqual(other, 201)

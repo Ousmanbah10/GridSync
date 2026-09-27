@@ -15,11 +15,22 @@ from .importing.service import build_preview, public_preview, import_preview
 from .importing.workbook import MAX_FILE_BYTES
 
 
+def public_post(view):
+    """Mark a view whose POST is allowed on a public deployment (it must rate-limit itself)."""
+    view.public_post = True
+    return view
+
+
+def is_local(request):
+    return settings.DEBUG and request.META.get('REMOTE_ADDR') in ('127.0.0.1', '::1')
+
+
 def local_api(view):
     @wraps(view)
     def wrapper(request, *args, **kwargs):
-        if not settings.DEBUG or request.META.get('REMOTE_ADDR') not in ('127.0.0.1', '::1'):
-            return JsonResponse({'error': 'The import workspace is available only on this development machine.'}, status=403)
+        public = settings.PUBLIC_API and (request.method in ('GET', 'HEAD') or getattr(view, 'public_post', False))
+        if not (is_local(request) or public):
+            return JsonResponse({'error': 'This action is available only on the local development machine.'}, status=403)
         try:
             return view(request, *args, **kwargs)
         except (ValueError, ImproperlyConfigured) as exc:
