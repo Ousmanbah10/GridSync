@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { basisLabel, distanceLabel, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
+import { basisLabel, distanceLabel, miles, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
 import CoordinationPlan from './CoordinationPlan'
 import './CoordinationPanel.css'
 
@@ -74,11 +74,11 @@ export default function CoordinationPanel({ data, loading, opportunities, select
           </ul>
           <button className="btn btn-sm btn-outline" onClick={() => onOpenProject(p.project_record_id)}>View Project<Icon name="arrowRight" size={13} /></button>
         </article>)}
-        <div className="pair-link"><Icon name="arrowLeft" size={14} /><strong className="num">{shared ? 'Shared' : `${active.distance_km.toFixed(1)} km`}</strong><Icon name="arrowRight" size={14} /></div>
+        <div className="pair-link"><Icon name="arrowLeft" size={14} /><strong className="num">{shared ? 'Shared' : miles(active.distance_km)}</strong><Icon name="arrowRight" size={14} /></div>
       </div>
 
       <div className="metric-row">
-        <article className="card metric"><span className="metric-icon"><Icon name="pin" size={22} /></span><div><h3>Geographic Overlap</h3><strong className="num">{shared ? active.shared_substations.join(', ') : `${active.distance_km.toFixed(1)} km`}</strong><p>{shared ? basisLabel(active) : `Within the 40 km threshold · ${active.distance_basis === 'approximate_corridor' ? 'approximate corridor' : 'mapped points'}`}</p><button className="link-button" onClick={() => onMap(active.id)}>Show on map<Icon name="arrowRight" size={13} /></button></div></article>
+        <article className="card metric"><span className="metric-icon"><Icon name="pin" size={22} /></span><div><h3>Geographic Overlap</h3><strong className="num">{shared ? active.shared_substations.join(', ') : miles(active.distance_km)}</strong><p>{shared ? basisLabel(active) : `Within the 25-mile rule · ${active.distance_basis === 'approximate_corridor' ? 'approximate corridor' : 'mapped points'}`}</p><button className="link-button" onClick={() => onMap(active.id)}>Show on map<Icon name="arrowRight" size={13} /></button></div></article>
         <article className="card metric"><span className="metric-icon violet"><Icon name="calendar" size={22} /></span><div><h3>{schedule.title}</h3><strong>{overlapLabel(active)}</strong><p>{schedule.detail}</p></div></article>
         <article className="card metric"><span className="metric-icon green"><Icon name="chart" size={22} /></span><div><h3>Coordination Score</h3><strong className="num score-number">{score}<small>/100</small></strong>
           {active.score_breakdown ? <div className="score-parts">{SCORE_PARTS.map(([key, label, max]) => <div key={key}><span>{label}</span><i><b style={{width: `${(active.score_breakdown[key] / max) * 100}%`}} /></i><span className="num">{active.score_breakdown[key]}/{max}</span></div>)}</div> : <p>Distance only; recalculate to get the full score.</p>}

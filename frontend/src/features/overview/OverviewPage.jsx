@@ -92,7 +92,7 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
       </div>
       <div className="legend">
         {leadingOwners.map(([owner]) => <span key={owner} title={owner}><i className="dot" style={{background: ownerColor(owner, owners)}} />{owner}</span>)}
-        <span><i className="dot" style={{background: 'var(--signal)'}} />Overlap (&lt; 40 km)</span>
+        <span><i className="dot" style={{background: 'var(--signal)'}} />Overlap (&lt; 25 mi)</span>
         <span><i className="legend-line" />{hasRoutes ? 'Transmission line' : 'Transmission line (not supplied)'}</span>
         <span><i className="legend-substation" />Substation</span>
         {filtered && <button className="link-button" onClick={resetFilters}>Clear filters</button>}
@@ -113,7 +113,7 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
 
         {clickedLocation && !current && !loading && !error && <article className="map-popup">
           <header><strong>{clickedLocation.name}</strong><button className="icon-button" aria-label="Close location and return to overview" onClick={closeSelection}><Icon name="close" /></button></header>
-          <p className="popup-note">No saved candidate at this location matches the current filters. Pairs must be under 40 km apart and owned by different utilities.</p>
+          <p className="popup-note">No saved candidate at this location matches the current filters. Pairs must be under 25 miles apart and owned by different utilities.</p>
           {clickedLocation.projectIds?.filter(id => data.projects.some(p => p.project_record_id === id)).map(id => <button key={id} className="btn btn-sm btn-block" onClick={() => onOpenProject(id)}>View project<Icon name="arrowRight" size={14} /></button>)}
         </article>}
 

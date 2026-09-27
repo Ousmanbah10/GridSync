@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { costTag, initials, money, routeLabel, scoreClass } from '../../ui/format'
 import { request, sourceUrl } from './api'
-import { bandName, scheduleTag, PAIR_COLORS } from '../overview/model'
+import { bandName, miles, scheduleTag, PAIR_COLORS } from '../overview/model'
 import './ProjectsPage.css'
 
 const EVIDENCE_LABELS = {project_cost: 'Estimated cost', construction: 'Construction window', in_service_date: 'In-service date'}
@@ -55,7 +55,7 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
         <div><span><Icon name="calendar" size={16} />In service</span><strong>{longDate(project.in_service_date) || project.in_service_year || '—'}</strong><small>{project.construction?.basis === 'illustrative' ? 'Illustrative demo date' : 'Planned in-service date'}</small></div>
         <div><span><Icon name="crane" size={16} />Construction</span><strong>{start && end ? `${months(start, end)} months` : '—'}</strong>
           <small>{start && end ? `${longDate(project.construction.start_date)} – ${longDate(project.construction.end_date)}${scheduleTag(project.construction)}` : 'Dates not supplied'}</small></div>
-        <div><span><Icon name="link" size={16} />Nearby projects</span><strong>{related.length}</strong><small>Other utilities within 40 km</small></div>
+        <div><span><Icon name="link" size={16} />Nearby projects</span><strong>{related.length}</strong><small>Other utilities within 25 miles</small></div>
       </section>
 
       {(start || service) && <section className="card schedule-card">
@@ -71,7 +71,7 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
               <button onClick={() => onOpenProject?.(o.partner_id)}>
                 <span className="org-mark" style={{background: PAIR_COLORS[1]}}>{initials(o.partner_owner)}</span>
                 <div><strong>{o.partner_name}</strong><small>{o.partner_owner} · {bandName(o.band)}</small></div>
-                <div className="related-facts"><span>{o.shared_substations.length ? `Shares ${o.shared_substations.join(', ')}` : `${o.distance_km.toFixed(1)} km`}</span>
+                <div className="related-facts"><span>{o.shared_substations.length ? `Shares ${o.shared_substations.join(', ')}` : miles(o.distance_km)}</span>
                   <span>{o.timeline?.overlap ? `${Math.round(o.timeline.overlap_days / 30.4)} mo overlap${o.timeline.illustrative ? ' (illustrative)' : o.timeline.estimated ? ' (est.)' : ''}` : o.timeline?.overlap === false ? 'No overlap' : 'Timing unknown'}</span></div>
                 <span className={`score-chip ${scoreClass(o.coordination_score)}`}>{Math.round(o.coordination_score)}/100</span>
                 <Icon name="arrowRight" size={15} />

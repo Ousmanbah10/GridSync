@@ -1,0 +1,36 @@
+.savings-card .card-header .chip { flex-shrink: 0; }
+.savings-body { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 24px; padding: 20px; }
+.savings-summary { padding: 20px; border-radius: var(--radius); background: linear-gradient(160deg, #0f2a1d, #14532d); color: #fff; display: flex; flex-direction: column; }
+.summary-label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #86efac; }
+.summary-value { font-size: 32px; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+.summary-sub { font-size: 13px; color: #bbf7d0; }
+.summary-facts { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgb(255 255 255 / 15%); display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.summary-facts > div { display: flex; justify-content: space-between; gap: 12px; }
+.summary-facts dt { display: flex; align-items: center; gap: 7px; color: #a7d8b8; }
+.summary-facts dd { text-align: right; font-weight: 500; }
+.levers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.levers li { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); transition: border-color .2s, background .2s; }
+.levers li.on { border-color: #bfe3cc; background: #f7fcf9; }
+.levers li.na { opacity: .6; }
+.levers label { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 12px; cursor: pointer; }
+.levers li.na label { cursor: default; }
+.lever-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ok-soft); color: var(--ok-ink); }
+.levers li.na .lever-icon, .levers li.off .lever-icon { background: var(--sunken); color: var(--faint); }
+.lever-text strong { display: block; font-size: 14px; }
+.lever-text small { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+.lever-amount { text-align: right; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ok-ink); }
+.levers li.na .lever-amount, .levers li.off .lever-amount { color: var(--faint); font-weight: 500; }
+.lever-amount small { display: block; font-size: 11px; font-weight: 500; color: var(--faint); }
+.lever-bar { position: relative; display: block; height: 5px; margin: 10px 0 0 92px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
+.lever-bar em { position: absolute; left: 0; top: 0; bottom: 0; background: #bbf7d0; }
+.lever-bar b { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1; background: var(--ok); border-radius: 3px; transition: width .3s; }
+.assumptions { padding: 0 20px 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.assumptions .link-button { font-size: 13px; }
+.assumptions > p { width: 100%; font-size: 12px; color: var(--faint); }
+.assumption-grid { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px 24px; padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.assumption-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.assumption-grid label span { display: flex; justify-content: space-between; gap: 8px; }
+.assumption-grid b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.assumption-grid input[type=range] { width: 100%; accent-color: var(--ok); }
+@media (max-width: 900px) { .savings-body { grid-template-columns: 1fr; } .lever-bar { margin-left: 0; } }
+@media print { .assumptions > button { display: none; } }

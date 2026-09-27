@@ -188,6 +188,17 @@ class PairAnalysisTests(SimpleTestCase):
             reply = self.client.post(f'/api/opportunities/{self.oid}/analysis/')
         self.assertEqual(reply.status_code, 201)
         self.assertEqual([p['_id'] for p in analyze.call_args.args[1]], [PROJECT['_id'], OTHER['_id']])
+        self.assertIsNone(analyze.call_args.args[2])
+
+    def test_post_passes_a_sanitized_savings_estimate(self):
+        payload = {'savings': {'low': 640000, 'high': 1190000, 'percent': 2.8, 'miles': 3.0, 'script': '<x>',
+                               'levers': [{'title': 'Shared laydown yard', 'amount': 350000}], 'schedule': 'overlap'}}
+        with patch('research.views.get_database', return_value=self.db), patch(
+                'research.views.analyze_pair', return_value={'executive_summary': 'ok'}) as analyze:
+            self.client.post(f'/api/opportunities/{self.oid}/analysis/', data=json.dumps(payload), content_type='application/json')
+        savings = analyze.call_args.args[2]
+        self.assertEqual((savings['low'], savings['levers'][0]['amount']), (640000, 350000))
+        self.assertNotIn('script', savings)
         self.db.coordination_analyses.insert_one.assert_called_once()
         self.db.coordination_opportunities.update_one.assert_not_called()
 

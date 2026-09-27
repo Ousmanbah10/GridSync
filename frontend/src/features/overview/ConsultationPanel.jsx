@@ -3,6 +3,8 @@ import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
 import { distanceLabel, scoreOf, bandName, overlapLabel, priorityLabel, PAIR_COLORS } from './model'
+import SavingsEstimate from './SavingsEstimate'
+import { estimateSavings } from './savings'
 import './ConsultationPanel.css'
 
 const TABS = [['summary', 'Executive Summary'], ['resources', 'Resource Opportunities'], ['risks', 'Risks & Considerations'], ['steps', 'Recommended Next Steps']]
@@ -29,7 +31,10 @@ export default function ConsultationPanel({ data, loading, opportunities, select
   async function generate() {
     setState(s => ({ ...s, busy: true, error: '' }))
     try {
-      const r = await fetch(`/api/opportunities/${activeId}/analysis/`, { method: 'POST', headers: { 'X-CSRFToken': state.csrf } })
+      const est = estimateSavings(active, projects)
+      const savings = est.total ? {low: est.low, high: est.high, percent: est.percent, acres: est.acres, miles: est.miles, schedule: est.schedule.label,
+        levers: est.levers.filter(l => l.on).map(l => ({title: l.title, amount: l.realized}))} : null
+      const r = await fetch(`/api/opportunities/${activeId}/analysis/`, { method: 'POST', headers: { 'X-CSRFToken': state.csrf, 'Content-Type': 'application/json' }, body: JSON.stringify({savings}) })
       const body = await r.json().catch(() => ({}))
       if (!r.ok) throw new Error(body.error || 'The analysis could not be generated. Please retry.')
       setState(s => ({ ...s, analysis: body.analysis, busy: false })); setTab('summary')
@@ -83,13 +88,15 @@ export default function ConsultationPanel({ data, loading, opportunities, select
             <small>{ownerShort(p.owner)}</small>
           </div>)}</div> : <div className="budget-empty"><Icon name="chart" size={28} /><strong>No published costs for this pair</strong><p>Neither source record includes a project budget, so savings can't be estimated from data yet. Use research on each project page to look for filed cost estimates.</p></div>}
           <div className="savings">
-            <h3>{priced.length === 2 ? 'Combined budget' : 'Potential savings'}</h3>
-            {priced.length === 2 ? <strong className="num">{money({amount: priced[0].amount + priced[1].amount, currency: priced[0].p.project_cost.currency})}</strong> : <strong className="muted-strong">Not estimated</strong>}
-            <p>{priced.length === 2 ? `Combined ${priced.some(c => costTag(c.p.project_cost)) ? 'published and illustrative' : 'published'} cost. Coordinated savings need engineering and procurement input.` : analysis?.cost_outlook || 'Savings come from shared mobilization, staging, and permitting. Quantifying them needs published budgets.'}</p>
+            <h3>Combined budget</h3>
+            {priced.length === 2 ? <strong className="num">{money({amount: priced[0].amount + priced[1].amount, currency: priced[0].p.project_cost.currency})}</strong> : <strong className="muted-strong">Not available</strong>}
+            <p>{priced.length === 2 ? `${priced.some(c => costTag(c.p.project_cost)) ? 'Includes an illustrative budget. ' : ''}See the savings estimate below.` : 'Both budgets are needed to compare.'}</p>
           </div>
         </div>
       </section>
     </div>
+
+    <SavingsEstimate key={active.id} opportunity={active} projects={projects} />
 
     <section className="card analysis">
       <header className="card-header"><div><h2>AI Analysis</h2><p>{analysis ? `Generated ${new Date(analysis.created_at).toLocaleString()} · ${analysis.model} · grounded only in the saved records` : 'Grounded in the saved records and screening facts only; no web search.'}</p></div></header>

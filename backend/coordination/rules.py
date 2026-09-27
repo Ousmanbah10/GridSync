@@ -1,13 +1,20 @@
 """All business thresholds and score weights live here. Upper distance bounds are exclusive."""
 from math import isfinite
 
-METHOD_VERSION = 'coordination-v3'
-MAX_DISTANCE_KM = 40.0
+METHOD_VERSION = 'coordination-v4-miles'
+# Thresholds are set in miles (the challenge rule is "within 25 miles"); distances are stored in km.
+KM_PER_MILE = 1.609344
+MAX_DISTANCE_MI = 25.0
+MAX_DISTANCE_KM = MAX_DISTANCE_MI * KM_PER_MILE
 BANDS = (
-    (1.6, 'shared_land', 2, ('right-of-way', 'access roads', 'permits')),
-    (8.0, 'shared_logistics', 3, ('laydown yards', 'deliveries')),
-    (40.0, 'shared_crews_equipment', 4, ('crews', 'equipment')),
+    (1 * KM_PER_MILE, 'shared_land', 2, ('right-of-way', 'access roads', 'permits')),
+    (5 * KM_PER_MILE, 'shared_logistics', 3, ('laydown yards', 'deliveries')),
+    (MAX_DISTANCE_KM, 'shared_crews_equipment', 4, ('crews', 'equipment')),
 )
+
+
+def miles(distance_km):
+    return distance_km / KM_PER_MILE
 SHARED_SUBSTATION = {'band': 'shared_substation', 'priority': 1, 'must_coordinate': True,
                      'resources': ['substation outage/switching plan', 'bay and yard space', 'protection settings']}
 
@@ -53,11 +60,11 @@ def coordination_score(left, right, distance_km, shared_substation, timeline, ot
     if shared_substation:
         extra = (PROXIMITY_POINTS - SHARED_SUBSTATION_BASE) * distance_score(distance_km) / 100 if other_ends_known else 0
         parts['proximity'] = SHARED_SUBSTATION_BASE + extra
-        notes.append('Shares a substation.' + (f' Other ends {distance_km:.1f} km apart.' if other_ends_known
+        notes.append('Shares a substation.' + (f' Other ends {miles(distance_km):.1f} mi apart.' if other_ends_known
                                                else ' Other ends not mapped.'))
     else:
         parts['proximity'] = PROXIMITY_POINTS * distance_score(distance_km) / 100
-        notes.append(f'{distance_km:.1f} km apart.')
+        notes.append(f'{miles(distance_km):.1f} mi apart.')
 
     if timeline.get('overlap') is not None:
         parts['timeline'] = TIMELINE_POINTS if timeline['overlap'] else 0

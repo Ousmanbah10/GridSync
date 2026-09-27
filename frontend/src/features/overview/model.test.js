@@ -61,12 +61,12 @@ test('one label per project uses distinct real locations when available', () => 
   assert.deepEqual(pairDisplayLocations([]), [])
 })
 
-test('shared substation pairs are labeled, not shown as 0.00 km', () => {
+test('shared substation pairs are labeled, not shown as 0.00 mi', () => {
   const shared = {distance_km: 112.46, distance_basis: 'other_endpoints', shared_substations: ['Valley']}
-  assert.equal(distanceLabel(shared), 'Shares Valley · other ends 112.5 km apart')
+  assert.equal(distanceLabel(shared), 'Shares Valley · other ends 69.9 mi apart')
   assert.equal(distanceLabel({distance_km: 0, distance_basis: 'shared_substation_only', shared_substations: ['Woodside']}), 'Shares Woodside')
   assert.equal(distanceLabel({distance_km: 0, distance_basis: 'approximate_corridor', corridor_crossing: true}), 'Corridors cross (approx.)')
-  assert.equal(distanceLabel({distance_km: 3.24, distance_basis: 'substation'}), '3.2 km')
+  assert.equal(distanceLabel({distance_km: 3.24, distance_basis: 'substation'}), '2.0 mi')
   assert.equal(scoreOf({coordination_score: 82.5, distance_score: 100}), 82.5)
   assert.equal(scoreOf({distance_score: 40}), 40)
 })

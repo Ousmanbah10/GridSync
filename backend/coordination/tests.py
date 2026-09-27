@@ -70,11 +70,13 @@ class GeometryTests(TestCase):
 
 class RuleTests(TestCase):
     def test_exact_exclusive_boundaries(self):
-        for distance, band in [(0, 'shared_land'), (1.599999, 'shared_land'),
-                               (1.6, 'shared_logistics'), (7.999999, 'shared_logistics'),
-                               (8, 'shared_crews_equipment'), (39.999999, 'shared_crews_equipment')]:
+        mile = 1.609344
+        for distance, band in [(0, 'shared_land'), (mile - 1e-6, 'shared_land'),
+                               (mile, 'shared_logistics'), (5 * mile - 1e-6, 'shared_logistics'),
+                               (5 * mile, 'shared_crews_equipment'), (25 * mile - 1e-6, 'shared_crews_equipment')]:
             self.assertEqual(classify(distance)['band'], band)
-        self.assertIsNone(classify(40))
+        self.assertIsNone(classify(25 * mile))
+        self.assertEqual(classify(40)['band'], 'shared_crews_equipment')  # 24.9 mi is inside the 25-mile rule
         self.assertIsNone(classify(50))
         self.assertEqual(classify(0, True)['band'], 'touching_crossing')
         self.assertFalse(classify(0)['must_coordinate'])
@@ -84,7 +86,7 @@ class RuleTests(TestCase):
     def test_monotonic_score(self):
         self.assertEqual(distance_score(0), 100)
         self.assertGreater(distance_score(1), distance_score(2))
-        self.assertEqual(distance_score(40), 0)
+        self.assertEqual(distance_score(25 * 1.609344), 0)
         for value in (-1, float('nan'), float('inf')):
             with self.assertRaises(ValueError):
                 classify(value)

@@ -23,16 +23,21 @@ export const bandName = band => ({touching_crossing: 'Mapped route crossing', sh
 // Coordination score (proximity + timeline + compatibility); falls back to older saved rows.
 export const scoreOf = o => o?.coordination_score ?? o?.distance_score ?? 0
 
-// Human wording for a pair's separation. A shared substation is not "0.00 km apart".
+// Distances are stored in km; the challenge rule and all labels use miles.
+export const KM_PER_MILE = 1.609344
+export const MAX_MILES = 25
+export const miles = km => `${(km / KM_PER_MILE).toFixed(1)} mi`
+
+// Human wording for a pair's separation. A shared substation is not "0.00 mi apart".
 export function distanceLabel(o) {
   if (!o) return ''
-  const km = `${o.distance_km.toFixed(1)} km`
+  const apart = miles(o.distance_km)
   if (o.shared_substations?.length) {
     const hub = `Shares ${o.shared_substations.join(', ')}`
-    return o.distance_basis === 'other_endpoints' ? `${hub} · other ends ${km} apart` : hub
+    return o.distance_basis === 'other_endpoints' ? `${hub} · other ends ${apart} apart` : hub
   }
-  if (o.distance_basis === 'approximate_corridor') return o.corridor_crossing ? 'Corridors cross (approx.)' : `${km} (approx. corridor)`
-  return km
+  if (o.distance_basis === 'approximate_corridor') return o.corridor_crossing ? 'Corridors cross (approx.)' : `${apart} (approx. corridor)`
+  return apart
 }
 
 export const basisLabel = o => ({route: 'Route geometry', other_endpoints: 'Shared substation; distance between the other ends',

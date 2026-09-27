@@ -168,7 +168,7 @@ def _strings(value, limit=8):
     return [item.strip()[:600] for item in value if isinstance(item, str) and item.strip()][:limit] if isinstance(value, list) else []
 
 
-def analyze_pair(opportunity, projects):
+def analyze_pair(opportunity, projects, savings=None):
     """Coordination brief for one candidate pair, grounded only in the saved records."""
     facts = {key: opportunity.get(key) for key in (
         'distance_km', 'distance_basis', 'band', 'shared_substations', 'corridor_crossing', 'coordination_score',
@@ -176,14 +176,17 @@ def analyze_pair(opportunity, projects):
     output = decode(call(payload(
         'Write a coordination brief for these two transmission projects owned by different utilities. '
         'Use ONLY the supplied records and screening facts; no outside knowledge or web search. '
-        'Distances are screening values; say when geometry is approximate. In-service years are not construction dates. '
+        'Distances are screening values in km; report them in miles (1 mi = 1.609 km). The flag rule is within 25 miles. Say when geometry is approximate. In-service years are not construction dates. '
         'Construction windows with basis annual_spending_schedule are estimates from a spending schedule; say so. '
         'A project_cost or construction with basis illustrative is a demo placeholder, not a utility figure; say it is illustrative. '
         'Cite utility documents by document name and page from document_evidence when you use their facts. '
         'Never state dollar savings, percentages, or dates that are not in the data. In cost_outlook, describe which '
         'published costs exist and what would be needed to estimate savings; do not produce a number. '
         'Keep each list item to one sentence. Label uncertainty plainly.\n'
-        + json.dumps(public({'opportunity': facts, 'projects': [project_context(p) for p in projects]})),
+        + ('A savings_estimate is supplied: a planning-level screening estimate from stated assumptions. You may cite its range and '
+           'levers in cost_outlook as an estimate (never as a quote); do not invent other figures. ' if savings else '')
+        + json.dumps(public({'opportunity': facts, 'projects': [project_context(p) for p in projects],
+                             **({'savings_estimate': savings} if savings else {})})),
         ANALYSIS_SCHEMA)))
     summary = output.get('executive_summary')
     if not isinstance(summary, str) or not summary.strip():

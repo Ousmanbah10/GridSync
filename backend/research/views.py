@@ -155,6 +155,20 @@ def _analysis_projects(db, opportunity):
     return [found[i] for i in ids if i in found]
 
 
+def _savings(request):
+    """Optional screening estimate from the page: numbers and short labels only."""
+    if not request.body or request.content_type != 'application/json':
+        return None
+    data = body(request).get('savings')
+    if not isinstance(data, dict):
+        return None
+    numbers = {k: round(float(data[k]), 2) for k in ('low', 'high', 'percent', 'acres', 'miles')
+               if isinstance(data.get(k), (int, float)) and abs(data[k]) < 1e12}
+    levers = [{'title': str(l.get('title'))[:80], 'amount': round(float(l['amount']), 2)}
+              for l in data.get('levers', [])[:6] if isinstance(l, dict) and isinstance(l.get('amount'), (int, float))]
+    return numbers | {'levers': levers, 'schedule': str(data.get('schedule', ''))[:120], 'basis': 'planning assumptions (screening estimate)'} if numbers else None
+
+
 @local_api
 def pair_analysis(request, opportunity_id):
     """GET the latest saved brief for a candidate pair; POST generates a new one with Gemini."""
@@ -173,7 +187,7 @@ def pair_analysis(request, opportunity_id):
     if not cache.add(lock, True, 180):
         return JsonResponse({'error': 'An analysis is already running for this pair.'}, status=409)
     try:
-        result = analyze_pair(opportunity, projects)
+        result = analyze_pair(opportunity, projects, _savings(request))
         result.update(_id=ObjectId(), opportunity_id=opportunity['_id'], created_at=datetime.now(timezone.utc))
         db.coordination_analyses.insert_one(result)
         return JsonResponse({'analysis': public(result)}, status=201)

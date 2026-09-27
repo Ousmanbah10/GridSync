@@ -7,7 +7,7 @@ import './HomePage.css'
 const FEATURES = [
   ['map', 'Project map', 'Every planned transmission project and substation on one map.', 'overview', 'Open the map',
     ['Filter by utility, work type, year, and status', 'Red rings mark projects with a nearby partner', '2D and 3D views with tilt and rotation']],
-  ['link', 'Coordination pairs', 'Projects from different utilities within 40 km, ranked by score.', 'coordination', 'View opportunities',
+  ['link', 'Coordination pairs', 'Projects from different utilities within 25 miles, ranked by score.', 'coordination', 'View opportunities',
     ['Score out of 100: proximity, timeline, compatibility', 'Construction overlap from filed schedules', 'Shared land, logistics, crews, and equipment']],
   ['calendar', 'Plan & meeting', 'Turn a pair into a meeting with both utilities in one step.', 'coordination', 'Plan a meeting',
     ['Both companies side by side with contacts', 'Timed agenda and a four-step coordination plan', 'Draft email and calendar invite']],
@@ -23,9 +23,9 @@ const STEPS = [
   ['Screen', 'GridSync measures the distance between projects from different utilities and scores each pair.'],
   ['Coordinate', 'Review the pair, generate a brief, and start the conversation before crews mobilize.'],
 ]
-const BANDS = [['Under 1.6 km', 'Land & access', 'Shared rights-of-way, access roads, and permitting.'],
-  ['Under 8 km', 'Site logistics', 'Staging areas, deliveries, and laydown yards.'],
-  ['Under 40 km', 'Crews & equipment', 'Line crews, cranes, and heavy equipment mobilization.']]
+const BANDS = [['Under 1 mile', 'Land & access', 'Shared rights-of-way, access roads, and permitting.'],
+  ['Under 5 miles', 'Site logistics', 'Staging areas, deliveries, and laydown yards.'],
+  ['Under 25 miles', 'Crews & equipment', 'Line crews, cranes, and heavy equipment mobilization.']]
 
 export default function HomePage({ onNavigate }) {
   const [stats, setStats] = useState(null)
