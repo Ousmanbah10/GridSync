@@ -4,6 +4,7 @@ import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel } from '../../ui/format'
 import { byProximity, delayLabel, distanceLabel, bandName, overlapLabel, PAIR_COLORS } from './model'
 import SavingsEstimate from './SavingsEstimate'
+import CoordinationPlan from './CoordinationPlan'
 import { estimateSavings } from './savings'
 import './ConsultationPanel.css'
 
@@ -16,6 +17,7 @@ export default function ConsultationPanel({ data, loading, opportunities, select
   const projects = active?.project_record_ids.map(id => byId.get(id)).filter(Boolean) || []
   const [state, setState] = useState({ id: null, analysis: null, csrf: '', configured: true, error: '', busy: false })
   const [tab, setTab] = useState('summary')
+  const [contactOpen, setContactOpen] = useState(false)
   const activeId = active?.id
 
   useEffect(() => {
@@ -49,10 +51,12 @@ export default function ConsultationPanel({ data, loading, opportunities, select
   const maxCost = Math.max(1, ...priced.map(c => c.amount))
 
   return <div className="consultation">
+    {contactOpen && <CoordinationPlan opportunity={active} projects={projects} onClose={() => setContactOpen(false)} />}
     <div className="consult-toolbar no-print">
       {onBack && <button className="btn btn-ghost back-to" onClick={onBack}><Icon name="arrowLeft" size={15} />Back to coordination</button>}
       <div className="consult-actions">
         <button className="btn" onClick={() => window.print()} disabled={!analysis}><Icon name="download" size={15} />Export Report</button>
+        <button className="btn btn-primary" onClick={() => setContactOpen(true)} disabled={projects.length !== 2}><Icon name="mail" size={15} />Contact & Invite</button>
       </div>
     </div>
     {!state.configured && <div className="notice notice-info">Add a Gemini API key and model to backend/.env to generate analyses. Screening facts below still come from your data.</div>}
