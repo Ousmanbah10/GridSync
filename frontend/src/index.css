@@ -59,18 +59,19 @@ input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; m
 .skip-link { position: absolute; left: 16px; top: -60px; z-index: 100; background: var(--surface); padding: 8px 12px; border-radius: var(--radius-sm); }
 .skip-link:focus { top: 8px; }
 .navbar { position: sticky; top: 0; z-index: 40; background: rgb(255 255 255 / 94%); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-.navbar-inner { max-width: 1600px; margin: 0 auto; height: 64px; padding: 0 var(--gutter); display: flex; align-items: center; gap: 36px; }
+.navbar-inner { max-width: 1600px; margin: 0 auto; height: 64px; padding: 0 var(--gutter); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; }
+.navbar-inner > .brand { justify-self: start; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
 .brand:hover { text-decoration: none; }
 .brand img { width: 32px; height: 32px; }
 .brand b { font-weight: 700; color: var(--accent); }
 .footer .brand b { color: #6ea2ff; }
 .footer .brand img { border-radius: 9px; box-shadow: 0 0 0 1px #2a3a55; }
-.navlinks { display: flex; align-self: stretch; gap: 4px; }
+.navlinks { display: flex; align-self: stretch; justify-content: center; gap: 4px; }
 .navlinks a { display: flex; align-items: center; padding: 0 12px; border-bottom: 2px solid transparent; color: var(--muted); font-size: 14px; font-weight: 500; }
 .navlinks a:hover { color: var(--ink); text-decoration: none; }
 .navlinks a[aria-current=page] { color: var(--accent); border-bottom-color: var(--accent); }
-.navbar-actions { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.navbar-actions { justify-self: end; display: flex; align-items: center; gap: 14px; }
 .navbar .menu-toggle { display: none; }
 
 .footer { background: var(--nav); color: #9fb0c8; margin-top: auto; }
@@ -171,6 +172,7 @@ select.control, .field select { appearance: none; -webkit-appearance: none; padd
 @media (max-width: 1100px) { :root { --gutter: 20px; } .navbar-inner { gap: 20px; } }
 @media (max-width: 860px) {
   .navbar .menu-toggle { display: inline-grid; }
+  .navbar-inner { grid-template-columns: 1fr auto; }
   .navlinks { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0; padding: 8px var(--gutter) 16px; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
   .navlinks.open { display: flex; }
   .navlinks a { height: 44px; border-bottom: 0; border-left: 3px solid transparent; }

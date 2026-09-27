@@ -22,7 +22,6 @@ export default function App() {
       <nav className={`navlinks ${menuOpen ? 'open' : ''}`} id="main-nav" aria-label="Main navigation">{NAV.map(([id, title]) =>
         <a key={id} {...link(id)} aria-current={active === id ? 'page' : undefined}>{title}</a>)}</nav>
       <div className="navbar-actions">
-        <button className="btn btn-sm" onClick={() => navigate('import')}><Icon name="upload" size={14} />Import data</button>
         <button className="icon-button menu-toggle" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="main-nav" onClick={() => setMenuOpen(o => !o)}><Icon name={menuOpen ? 'close' : 'menu'} size={20} /></button>
       </div>
     </div></header>
