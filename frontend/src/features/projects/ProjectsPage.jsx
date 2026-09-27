@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
-import { hostname, money, orgColor, routeLabel, scheduleLabel } from '../../ui/format'
+import { costTag, hostname, money, orgColor, routeLabel, scheduleLabel } from '../../ui/format'
 import { request, sourceUrl } from './api'
 import './ProjectsPage.css'
 
@@ -53,7 +53,7 @@ export default function ProjectsPage({ initialSearch = '', onOpen, onImport }) {
             <td><span className="clamp" title={p.project_type}>{p.project_type?.split(';')[0] || <span className="muted">—</span>}</span></td>
             <td>{routeLabel(p) ? <><span className="clamp" title={routeLabel(p)}>{routeLabel(p)}</span><small>{p.state_codes?.join(', ')}</small></> : p.state_codes?.join(', ') || <span className="muted">—</span>}</td>
             <td className="nowrap num">{scheduleLabel(p)}</td>
-            {showCost && <td className="num">{money(p.project_cost) || <span className="muted">—</span>}</td>}
+            {showCost && <td className="num nowrap">{money(p.project_cost) || <span className="muted">{p.project_cost_note ? 'Redacted' : '—'}</span>}{costTag(p.project_cost) && <small className="illustrative">Illustrative</small>}</td>}
             <td>{p.status ? <span className="chip">{p.status}</span> : <span className="muted">—</span>}</td>
             <td>{link ? <a href={link} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="source-link">{hostname(link)}<Icon name="external" size={12} /></a> : <span className="muted">—</span>}</td>
             <td className="right"><button className="link-button" onClick={e => {e.stopPropagation(); onOpen(p._id)}}>View</button></td>

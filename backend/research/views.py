@@ -64,7 +64,23 @@ def detail(request, project_id):
     project = project_for(db, project_id)
     if not project: return JsonResponse({'error': 'Project not found.'}, status=404)
     runs = list(db.project_research.find({'project_record_id': project['_id']}).sort([('created_at', -1), ('_id', -1)]).limit(5))
-    return JsonResponse({'project': public(project), 'runs': public(runs),
+    from coordination.repository import GENERATOR
+    pairs = list(db.coordination_opportunities.find(
+        {'project_record_ids': project['_id'], 'generated_by': GENERATOR, 'active': True},
+        {'project_record_ids': 1, 'project_names': 1, 'owners': 1, 'distance_km': 1, 'distance_basis': 1, 'band': 1,
+         'coordination_score': 1, 'distance_score': 1, 'shared_substations': 1, 'timeline': 1})
+        .sort([('coordination_score', -1), ('distance_km', 1)]).limit(12))
+    related = []
+    for pair in pairs:
+        index = 1 if pair['project_record_ids'][0] == project['_id'] else 0
+        related.append({'id': str(pair['_id']), 'partner_id': str(pair['project_record_ids'][index]),
+                        'partner_name': (pair.get('project_names') or [None, None])[index],
+                        'partner_owner': (pair.get('owners') or [None, None])[index],
+                        'distance_km': pair.get('distance_km'), 'distance_basis': pair.get('distance_basis'),
+                        'band': pair.get('band'), 'shared_substations': pair.get('shared_substations') or [],
+                        'coordination_score': pair.get('coordination_score', pair.get('distance_score')),
+                        'timeline': public(pair.get('timeline'))})
+    return JsonResponse({'project': public(project), 'runs': public(runs), 'related_opportunities': related,
                          'csrf_token': get_token(request),
                          'ai_configured': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL)})
 

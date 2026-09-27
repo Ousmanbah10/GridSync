@@ -29,7 +29,7 @@ export default function App() {
 
     <main className={page === 'home' ? 'home-main' : 'page'} id="main-content">{page === 'home' ? <HomePage onNavigate={navigate} /> :
       page === 'projects' ? <ProjectsPage onOpen={openProject} onImport={() => navigate('import')} /> :
-      page === 'project-detail' ? <ProjectDetail key={projectId} projectId={projectId} onBack={() => navigate('projects')} /> :
+      page === 'project-detail' ? <ProjectDetail key={projectId} projectId={projectId} onBack={() => navigate('projects')} onOpenProject={openProject} /> :
       page === 'import' ? <ImportWorkspace onBack={() => navigate('projects')} /> :
       <OverviewPage mode={page} onNavigate={navigate} onOpenProject={openProject} />}</main>
 

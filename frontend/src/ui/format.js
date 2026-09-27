@@ -46,3 +46,10 @@ export function scheduleLabel(p) {
   return p?.in_service_year ? `In service ${p.in_service_year}` : 'Schedule not supplied'
 }
 export const hostname = url => { try { return new URL(url).hostname.replace(/^www\./, '') } catch { return null } }
+
+// "Illustrative" for demo placeholders; null for values that come from records or filings.
+export const costTag = cost => cost?.basis === 'illustrative' ? 'Illustrative' : null
+
+// Public company websites for utilities we know; everything else is looked up by the user.
+const SITES = [[/dominion/i, 'https://www.dominionenergy.com'], [/georgia power/i, 'https://www.georgiapower.com']]
+export const ownerSite = owner => SITES.find(([pattern]) => pattern.test(owner || ''))?.[1] || null

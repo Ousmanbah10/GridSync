@@ -110,3 +110,5 @@
   .timeline-axis { margin-left: 0; }
   .timeline-row { grid-template-columns: 1fr; padding-top: 8px; }
 }
+.cost-tag { height: 20px; font-size: 11px; margin-left: 6px; }
+.draft ol { display: none; }

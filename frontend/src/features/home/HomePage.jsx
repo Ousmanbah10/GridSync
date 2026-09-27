@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { ownerShort, scoreClass } from '../../ui/format'
 import { bandName, distanceLabel, scoreOf, PAIR_COLORS } from '../overview/model'
 import './HomePage.css'
 
 const FEATURES = [
-  ['map', 'National project map', 'Every planned transmission project and substation on one map, filterable by utility, type, year, and status.', 'overview'],
-  ['link', 'Cross-utility pairs', 'Projects owned by different utilities within 40 km of each other, ranked by proximity, timing, and compatibility.', 'coordination'],
-  ['chat', 'Grounded AI briefs', 'A coordination brief for any pair, written only from the source records, with risks and next steps.', 'consultation'],
-  ['table', 'Traceable records', 'Each project links back to its source workbook row and the original utility or planning document.', 'projects'],
+  ['map', 'Project map', 'Every planned transmission project and substation on one map.', 'overview', 'Open the map',
+    ['Filter by utility, work type, year, and status', 'Red rings mark projects with a nearby partner', '2D and 3D views with tilt and rotation']],
+  ['link', 'Coordination pairs', 'Projects from different utilities within 40 km, ranked by score.', 'coordination', 'View opportunities',
+    ['Score out of 100: proximity, timeline, compatibility', 'Construction overlap from filed schedules', 'Shared land, logistics, crews, and equipment']],
+  ['calendar', 'Plan & meeting', 'Turn a pair into a meeting with both utilities in one step.', 'coordination', 'Plan a meeting',
+    ['Both companies side by side with contacts', 'Timed agenda and a four-step coordination plan', 'Draft email and calendar invite']],
+  ['chat', 'AI analysis', 'A brief for any pair, written only from the records and filings.', 'consultation', 'Try the analysis',
+    ['Executive summary and key insights', 'Risks and recommended next steps', 'Cites utility documents by page']],
+  ['file', 'Utility filings', 'Budgets and dates read straight from utility planning documents.', 'projects', 'Browse projects',
+    ['Dominion and Georgia Power filings parsed', 'Every value cites its document and page', 'Redacted values stay redacted']],
+  ['table', 'Traceable records', 'Each project keeps its source workbook row and document links.', 'projects', 'See the library',
+    ['Import any compatible Excel workbook', 'Review before anything is saved', 'Re-imports never duplicate records']],
 ]
 const STEPS = [
   ['Import', 'Load the planning workbook. Every record keeps its source sheet, row, and document links.'],
@@ -22,6 +30,7 @@ const BANDS = [['Under 1.6 km', 'Land & access', 'Shared rights-of-way, access r
 export default function HomePage({ onNavigate }) {
   const [stats, setStats] = useState(null)
   const [top, setTop] = useState(null)
+  const [openCard, setOpenCard] = useState(null)
   useEffect(() => {
     const abort = new AbortController()
     const get = url => fetch(url, {signal: abort.signal}).then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)))
@@ -35,29 +44,32 @@ export default function HomePage({ onNavigate }) {
   const value = n => stats ? n.toLocaleString() : stats === false ? '—' : <span className="skeleton" />
 
   return <div className="home">
-    <section className="hero"><div className="container hero-grid">
-      <div className="hero-copy">
-        <span className="eyebrow">Transmission coordination</span>
-        <h1>Coordinate transmission projects before construction begins.</h1>
-        <p>GridSync maps planned transmission work across utilities and flags projects that are close enough to share land, logistics, crews, and equipment.</p>
-        <div className="hero-actions">
-          <button className="btn btn-primary btn-lg" onClick={() => onNavigate('overview')}>Explore the map<Icon name="arrowRight" size={16} /></button>
-          <button className="btn btn-lg" onClick={() => onNavigate('coordination')}>View opportunities</button>
+    <section className="hero">
+      <div className="hero-media" aria-hidden="true" />
+      <div className="container hero-grid">
+        <div className="hero-copy">
+          <span className="hero-kicker">Transmission coordination</span>
+          <h1>Coordinate transmission projects before construction begins.</h1>
+          <p>GridSync maps planned transmission work across utilities and flags projects close enough to share land, logistics, crews, and equipment.</p>
+          <div className="hero-actions">
+            <button className="btn btn-primary btn-lg" onClick={() => onNavigate('overview')}>Explore the map<Icon name="arrowRight" size={16} /></button>
+            <button className="btn btn-lg btn-on-dark" onClick={() => onNavigate('coordination')}>View opportunities</button>
+          </div>
+          <p className="hero-note"><Icon name="shield" size={15} />Built on public utility planning data. Every record links to its source.</p>
         </div>
-        <p className="hero-note"><Icon name="shield" size={15} />Built on public utility planning data. Every record links to its source.</p>
+        <aside className="hero-panel" aria-label="Top ranked coordination candidates">
+          <header><span>Top ranked pairs</span><button className="link-button" onClick={() => onNavigate('coordination')}>See all<Icon name="arrowRight" size={13} /></button></header>
+          <ol>{(top || [null, null, null]).map((o, i) => <li key={o?._id || i}>
+            {o ? <>
+              <div className="pair-names">{o.project_names?.map((name, index) => <span key={index}><i className="dot" style={{background: PAIR_COLORS[index]}} />{name}</span>)}</div>
+              <div className="pair-meta"><span>{ownerShort(o.owners?.[0])} ↔ {ownerShort(o.owners?.[1])}</span><span>{distanceLabel(o)}</span><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
+              <small>{bandName(o.band)}</small>
+            </> : <div className="pair-skeleton"><span className="skeleton" /><span className="skeleton" /></div>}
+          </li>)}
+          {top && !top.length && <li className="muted">Import data and rank opportunities to see pairs here.</li>}</ol>
+        </aside>
       </div>
-      <aside className="hero-panel" aria-label="Top ranked coordination candidates">
-        <header><span>Top ranked pairs</span><button className="link-button" onClick={() => onNavigate('coordination')}>See all<Icon name="arrowRight" size={13} /></button></header>
-        <ol>{(top || [null, null, null]).map((o, i) => <li key={o?._id || i}>
-          {o ? <>
-            <div className="pair-names">{o.project_names?.map((name, index) => <span key={index}><i className="dot" style={{background: PAIR_COLORS[index]}} />{name}</span>)}</div>
-            <div className="pair-meta"><span>{ownerShort(o.owners?.[0])} ↔ {ownerShort(o.owners?.[1])}</span><span>{distanceLabel(o)}</span><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
-            <small>{bandName(o.band)}</small>
-          </> : <div className="pair-skeleton"><span className="skeleton" /><span className="skeleton" /></div>}
-        </li>)}
-        {top && !top.length && <li className="muted">Import data and rank opportunities to see pairs here.</li>}</ol>
-      </aside>
-    </div></section>
+    </section>
 
     <section className="stat-band" aria-label="Dataset summary"><div className="container stat-grid">
       <div><strong className="num">{value(stats?.projects)}</strong><span>Planned projects</span></div>
@@ -68,9 +80,7 @@ export default function HomePage({ onNavigate }) {
 
     <section className="section"><div className="container">
       <div className="section-head"><span className="eyebrow">What GridSync does</span><h2>One place to see where plans overlap</h2><p>Utilities plan in parallel. GridSync puts their projects side by side so the overlaps are visible early.</p></div>
-      <div className="feature-grid">{FEATURES.map(([icon, title, text, target]) => <button className="feature" key={title} onClick={() => onNavigate(target)}>
-        <span className="feature-icon"><Icon name={icon} size={22} /></span><h3>{title}</h3><p>{text}</p><span className="feature-link">Open<Icon name="arrowRight" size={13} /></span>
-      </button>)}</div>
+      <div className="feature-grid">{FEATURES.map((feature, i) => <FeatureCard key={feature[1]} feature={feature} index={i} open={openCard === i} onToggle={() => setOpenCard(openCard === i ? null : i)} onNavigate={onNavigate} />)}</div>
     </div></section>
 
     <section className="section section-alt"><div className="container split">
@@ -88,4 +98,28 @@ export default function HomePage({ onNavigate }) {
       <div className="hero-actions"><button className="btn btn-primary btn-lg" onClick={() => onNavigate('overview')}>Open the map<Icon name="arrowRight" size={16} /></button><button className="btn btn-lg btn-on-dark" onClick={() => onNavigate('import')}>Import data</button></div>
     </div></section>
   </div>
+}
+
+// Expands in place on click; fades up once when scrolled into view.
+function FeatureCard({ feature: [icon, title, text, target, action, points], index, open, onToggle, onNavigate }) {
+  const ref = useRef(null)
+  const [seen, setSeen] = useState(false)
+  useEffect(() => {
+    const node = ref.current
+    if (!node || !('IntersectionObserver' in window)) { setSeen(true); return }
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setSeen(true); observer.disconnect() } }, {threshold: .2})
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+  return <article ref={ref} className={`feature ${open ? 'open' : ''} ${seen ? 'seen' : ''}`} style={{'--delay': `${(index % 3) * 90}ms`}}>
+    <button className="feature-toggle" aria-expanded={open} onClick={onToggle}>
+      <span className="feature-icon"><Icon name={icon} size={22} /></span>
+      <span className="feature-text"><h3>{title}</h3><p>{text}</p></span>
+      <span className="feature-plus" aria-hidden="true" />
+    </button>
+    <div className="feature-more"><div>
+      <ul>{points.map(point => <li key={point}><Icon name="check" size={14} />{point}</li>)}</ul>
+      <button className="btn btn-sm btn-primary" tabIndex={open ? 0 : -1} onClick={() => onNavigate(target)}>{action}<Icon name="arrowRight" size={13} /></button>
+    </div></div>
+  </article>
 }

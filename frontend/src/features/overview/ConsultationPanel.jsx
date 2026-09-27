@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
-import { initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
+import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
 import { distanceLabel, scoreOf, bandName, overlapLabel, priorityLabel, PAIR_COLORS } from './model'
 import './ConsultationPanel.css'
 
@@ -67,7 +67,7 @@ export default function ConsultationPanel({ data, loading, opportunities, select
               <p><Icon name="line" size={13} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</p>
               <p><Icon name="calendar" size={13} />{scheduleLabel(p)}</p>
               <p><Icon name="pin" size={13} />{placeLabel(p)}</p>
-              <p><Icon name="chart" size={13} />{money(p.project_cost) ? `Est. cost ${money(p.project_cost)} (published)` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</p>
+              <p><Icon name="chart" size={13} />{money(p.project_cost) ? `Est. cost ${money(p.project_cost)} (${costTag(p.project_cost) ? 'illustrative' : 'published'})` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</p>
             </div>
           </li>)}</ul>
           <PairSketch opportunity={active} />
@@ -78,14 +78,14 @@ export default function ConsultationPanel({ data, loading, opportunities, select
         <header className="card-header"><div><h2>Budget Comparison</h2><p>Published project costs from the source records</p></div></header>
         <div className="card-body budget">
           {priced.length ? <div className="bars">{costs.map(({p, label, amount}, index) => <div className="bar-col" key={p.project_record_id}>
-            <span className="bar-value">{label || (p.project_cost_note ? 'Redacted' : 'n/a')}</span>
+            <span className="bar-value">{label || (p.project_cost_note ? 'Redacted' : 'n/a')}</span>{costTag(p.project_cost) && <span className="chip chip-warn bar-tag" title={p.project_cost.note}>{costTag(p.project_cost)}</span>}
             <div className="bar-track">{label ? <b style={{height: `${Math.max(4, (amount / maxCost) * 100)}%`, background: PAIR_COLORS[index]}} /> : <b className="bar-missing" />}</div>
             <small>{ownerShort(p.owner)}</small>
           </div>)}</div> : <div className="budget-empty"><Icon name="chart" size={28} /><strong>No published costs for this pair</strong><p>Neither source record includes a project budget, so savings can't be estimated from data yet. Use research on each project page to look for filed cost estimates.</p></div>}
           <div className="savings">
-            <h3>Potential savings</h3>
+            <h3>{priced.length === 2 ? 'Combined budget' : 'Potential savings'}</h3>
             {priced.length === 2 ? <strong className="num">{money({amount: priced[0].amount + priced[1].amount, currency: priced[0].p.project_cost.currency})}</strong> : <strong className="muted-strong">Not estimated</strong>}
-            <p>{priced.length === 2 ? 'Combined published cost. Coordinated savings need engineering and procurement input.' : analysis?.cost_outlook || 'Savings come from shared mobilization, staging, and permitting. Quantifying them needs published budgets.'}</p>
+            <p>{priced.length === 2 ? `Combined ${priced.some(c => costTag(c.p.project_cost)) ? 'published and illustrative' : 'published'} cost. Coordinated savings need engineering and procurement input.` : analysis?.cost_outlook || 'Savings come from shared mobilization, staging, and permitting. Quantifying them needs published budgets.'}</p>
           </div>
         </div>
       </section>

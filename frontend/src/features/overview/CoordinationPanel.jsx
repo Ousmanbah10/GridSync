@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
-import { initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
+import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
 import { bandName, basisLabel, distanceLabel, overlapLabel, priorityLabel, scoreOf, timelineSummary, PAIR_COLORS } from './model'
+import CoordinationPlan from './CoordinationPlan'
 import './CoordinationPanel.css'
 
 const displayDate = value => value ? String(value).slice(0, 10) : null
@@ -59,15 +60,11 @@ export default function CoordinationPanel({ data, loading, opportunities, select
           <div className="comparison-tags"><span className={`chip ${priorityClass}`}>{priority}</span><span className="chip">{bandName(active.band)}</span></div>
         </div>
         <div className="comparison-actions">
-          <button className="btn btn-primary" aria-pressed={draft === 'plan'} onClick={() => setDraft(draft === 'plan' ? null : 'plan')}>Create Coordination Plan</button>
-          <button className="btn btn-outline" aria-pressed={draft === 'meeting'} onClick={() => setDraft(draft === 'meeting' ? null : 'meeting')}>Propose Meeting</button>
+          <button className="btn btn-primary" onClick={() => setDraft('plan')}><Icon name="calendar" size={15} />Plan & Propose Meeting</button>
         </div>
       </header>
 
-      {draft && <section className="card draft">
-        <header className="card-header"><div><h2>{draft === 'plan' ? 'Coordination plan' : 'Meeting agenda'}</h2><p>{projects.map(p => p?.owner || 'Owner unknown').join(' ↔ ')} · draft, nothing is sent</p></div><button className="icon-button" aria-label="Close draft" onClick={() => setDraft(null)}><Icon name="close" /></button></header>
-        <ol><li>Confirm project owners, contacts, mapped locations, and separation ({distanceLabel(active)}).</li><li>Obtain construction start and end dates and check outage dependencies.</li><li>Review potential sharing: {actions.join(', ') || 'none identified'}.</li><li>Verify rights-of-way, permits, engineering constraints, and cost estimates.</li><li>Assign owners and dates for the next decisions.</li></ol>
-      </section>}
+      {draft && <CoordinationPlan opportunity={active} projects={projects} onClose={() => setDraft(null)} />}
 
       <div className="pair-compare">
         {projects.map((p, index) => p && <article className="card project-card" key={p.project_record_id} style={{'--pair': PAIR_COLORS[index]}}>
@@ -77,7 +74,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
             <li><Icon name="line" size={15} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</li>
             <li><Icon name="calendar" size={15} />{p.construction?.start_date ? `${displayDate(p.construction.start_date)} → ${displayDate(p.construction.end_date) || '?'}${p.construction.basis === 'annual_spending_schedule' ? ' (est.)' : ''}` : scheduleLabel(p)}</li>
             <li><Icon name="pin" size={15} />{placeLabel(p)}</li>
-            <li><Icon name="chart" size={15} />{money(p.project_cost) ? `${money(p.project_cost)} estimated cost` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</li>
+            <li><Icon name="chart" size={15} />{money(p.project_cost) ? `${money(p.project_cost)} estimated cost` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}{costTag(p.project_cost) && <span className="chip chip-warn cost-tag" title={p.project_cost.note}>{costTag(p.project_cost)}</span>}</li>
           </ul>
           <button className="btn btn-sm btn-outline" onClick={() => onOpenProject(p.project_record_id)}>View Project<Icon name="arrowRight" size={13} /></button>
         </article>)}

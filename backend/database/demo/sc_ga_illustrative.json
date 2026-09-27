@@ -1,0 +1,15 @@
+{
+  "_note": "Illustrative demo values for presentation. Georgia Power's filed estimates are redacted in the public IRP; these are rough per-mile planning figures, not utility numbers.",
+  "projects": {
+    "GPC_1": {"project_name": "EVANS PRIMARY - THURMOND DAM (USA) #5 115KV REBUILD",
+              "project_cost": {"amount": 9100000, "reasoning": "5.45 mi of 115 kV rebuild at about $1.4M/mile, plus about $1.5M for the Thurmond Dam bus replacement."}},
+    "GPC_2": {"project_name": "SAV: MCINTOSH - PURRYSBURG 230KV REACTORS",
+              "project_cost": {"amount": 9400000, "reasoning": "Two 230 kV line reactors at about $4.5M each, plus 0.1 mi of conductor work."}},
+    "GPC_3": {"project_name": "SAV: GOSHEN (SAV) - MCINTOSH 115KV LINE REBUILD",
+              "project_cost": {"amount": 9400000, "reasoning": "6.7 mi of 115 kV rebuild at about $1.4M/mile."}},
+    "GPC_4": {"project_name": "MITCHELL - NORTH TIFTON 230KV RECONDUCTOR",
+              "project_cost": {"amount": 38700000, "reasoning": "35.21 mi of 230 kV reconductoring at about $1.1M/mile."}},
+    "GPC_5": {"project_name": "JESUP - LUDOWICI PRIMARY 115KV REBUILD",
+              "project_cost": {"amount": 9000000, "reasoning": "7.5 mi of 115 kV rebuild at about $1.2M/mile."}}
+  }
+}
