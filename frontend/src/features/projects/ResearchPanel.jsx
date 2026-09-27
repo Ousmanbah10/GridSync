@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { fieldLabel, post, sourceUrl } from './api'
 import { hostname } from '../../ui/format'
-import Markdown, { Inline } from '../../ui/Markdown'
+import Markdown from '../../ui/Markdown'
+
+// Google Search results come back as redirect links; show the page's own name instead.
+const sourceName = src => /vertexaisearch|googleusercontent/.test(hostname(src.url) || '') ? (src.title || 'Source').replace(/^www\./, '').slice(0, 32) : hostname(src.url)
 
 const OUTCOMES = {
   proposals: 'Found facts with sources. Review them below.',
@@ -10,7 +13,6 @@ const OUTCOMES = {
   report_only: 'Report saved; the facts could not be pulled out automatically.',
   no_evidence: 'No usable sources were returned.',
 }
-const STATUS = {pending: ['Pending review', 'chip-warn'], reviewed: ['Accepted', 'chip-ok'], rejected: ['Rejected', 'chip']}
 
 // Gemini + Google Search research for one project. Results are proposals; imported data is never changed.
 export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiConfigured, running: initiallyRunning }) {
@@ -50,29 +52,29 @@ export default function ResearchPanel({ projectId, runs: initialRuns, csrf, aiCo
     <header className="card-header">
       <div><h2>Web research</h2><p>Search the web for dates, budget, and permits</p></div>
       <button className="btn btn-primary" onClick={research} disabled={busy || waiting || !aiConfigured}>
-        {busy || waiting ? <><span className="spinner light" />Searching the web…</> : <><Icon name={run ? 'refresh' : 'search'} size={15} />{run ? 'Search again' : 'Search the web'}</>}
+        {busy || waiting ? <><span className="spinner light" />Searching…</> : <><Icon name={run ? 'refresh' : 'search'} size={15} />{run ? 'Search again' : 'Search the web'}</>}
       </button>
     </header>
     {error && <div className="notice notice-error research-notice" role="alert">{error}</div>}
-    {(busy || waiting) && <p className="research-wait">{waiting && !busy ? 'A search for this project is still running. Results will appear here when it finishes.' : 'This usually takes 20–60 seconds. You can leave this page; results are saved when the search finishes.'}</p>}
-    {!run && !busy && !waiting && <p className="empty">No research yet. Click <b>Search the web</b> to look for construction dates, budget, and permits.</p>}
+    {(busy || waiting) && <p className="research-wait">{waiting && !busy ? 'A search is still running. Results appear here when it finishes.' : 'Takes about 20–60 seconds. You can leave this page; results are saved.'}</p>}
+    {!run && !busy && !waiting && <p className="research-empty">No research yet.</p>}
     {run && <div className="research-body">
-      <p className="research-meta">{new Date(run.created_at).toLocaleString()} · {OUTCOMES[run.outcome] || run.outcome}</p>
-      {run.findings?.length > 0 && <ul className="findings">{run.findings.map(f => { const [label, cls] = STATUS[f.review_status] || STATUS.pending; return <li key={f.id} className={f.review_status}>
-        <div className="finding-head"><span className="finding-field">{fieldLabel(f.field)}</span><strong>{f.value}</strong><span className={`chip ${cls}`}>{label}</span></div>
-        {f.supporting_passage && <blockquote><Inline text={f.supporting_passage} /></blockquote>}
-        <div className="finding-foot">
-          <span className="finding-sources">{f.source_ids.map(id => sourceById.get(id)).filter(s => s && sourceUrl(s.url)).map(s => <a key={s.id} href={s.url} target="_blank" rel="noreferrer"><Icon name="external" size={11} />{hostname(s.url)}</a>)}</span>
-          <span className="finding-actions">
-            <button className="btn btn-sm" disabled={f.review_status === 'reviewed'} onClick={() => review(f, 'reviewed')}><Icon name="check" size={13} />Accept</button>
-            <button className="btn btn-sm btn-ghost" disabled={f.review_status === 'rejected'} onClick={() => review(f, 'rejected')}>Reject</button>
-          </span>
-        </div>
-        {f.scope_note && <small className="finding-note">{f.scope_note}</small>}
-      </li> })}</ul>}
-      {run.missing_fields?.length > 0 && <p className="research-missing">Not found: {run.missing_fields.map(fieldLabel).join(', ')}.</p>}
-      {run.sources?.length > 0 && <details className="research-details"><summary>Sources ({run.sources.length})</summary><ul>{run.sources.filter(s => sourceUrl(s.url)).map(s => <li key={s.id}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a></li>)}</ul></details>}
-      {run.report && <details className="research-details" open={!run.findings?.length}><summary>Full research report</summary><div className="research-report"><Markdown text={run.report} /></div></details>}
+      {run.findings?.length > 0 ? <table className="facts-table">
+        <tbody>{run.findings.map(f => { const sources = f.source_ids.map(id => sourceById.get(id)).filter(src => src && sourceUrl(src.url)); return <tr key={f.id} className={f.review_status}>
+          <th>{fieldLabel(f.field)}</th>
+          <td title={f.supporting_passage}><strong>{f.value}</strong>{f.scope_note && <small>{f.scope_note}</small>}</td>
+          <td className="fact-source">{sources.slice(0, 2).map(src => <a key={src.id} href={src.url} target="_blank" rel="noreferrer" title={src.title}>{sourceName(src)}<Icon name="external" size={11} /></a>)}</td>
+          <td className="fact-actions">
+            <button className={`icon-button ${f.review_status === 'reviewed' ? 'is-on ok' : ''}`} aria-label="Accept" title="Accept" onClick={() => review(f, 'reviewed')}><Icon name="check" size={15} /></button>
+            <button className={`icon-button ${f.review_status === 'rejected' ? 'is-on no' : ''}`} aria-label="Reject" title="Reject" onClick={() => review(f, 'rejected')}><Icon name="close" size={15} /></button>
+          </td>
+        </tr> })}</tbody>
+      </table> : <p className="research-empty">{OUTCOMES[run.outcome] || 'No facts found.'}</p>}
+      <p className="research-meta">Searched {new Date(run.created_at).toLocaleDateString()}{run.missing_fields?.length ? ` · Not found: ${run.missing_fields.map(fieldLabel).join(', ')}` : ''}</p>
+      {run.report && <details className="research-details" open={!run.findings?.length}><summary>Read full report{run.sources?.length ? ` · ${run.sources.length} sources` : ''}</summary>
+        <div className="research-report"><Markdown text={run.report} />
+          {run.sources?.length > 0 && <><h4 className="sources-title">Sources</h4><ul className="sources-list">{run.sources.filter(src => sourceUrl(src.url)).map(src => <li key={src.id}><a href={src.url} target="_blank" rel="noreferrer">{src.title}</a></li>)}</ul></>}
+        </div></details>}
     </div>}
   </section>
 }
