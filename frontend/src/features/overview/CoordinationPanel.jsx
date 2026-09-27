@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { basisLabel, distanceLabel, miles, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
+import { basisLabel, delayLabel, distanceLabel, miles, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
 import CoordinationPlan from './CoordinationPlan'
 import './CoordinationPanel.css'
 
@@ -42,6 +42,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
             <div className="candidate-title"><strong>{o.project_names?.join(' – ')}</strong><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
             <small className="candidate-owners">{ownerShort(o.owners?.[0])} <Icon name="link" size={12} /> {ownerShort(o.owners?.[1])}</small>
             <small>{distanceLabel(o)} · {overlapLabel(o)}</small>
+            {o.project_record_ids.some(id => byId.get(id)?.schedule_flag?.kind === 'delayed') && <small className="risk-note"><Icon name="alert" size={12} />Schedule risk: a project was delayed in its latest filing</small>}
             {o.project_record_ids.some(id => byId.get(id)?.project_type) && <div className="candidate-tags">{o.project_record_ids.map(id => byId.get(id)?.project_type && <span key={id}>{byId.get(id).project_type.split(';')[0]}</span>)}</div>}
           </div>
         </button>)}
@@ -66,6 +67,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
         {projects.map((p, index) => p && <article className="card project-card" key={p.project_record_id} style={{'--pair': PAIR_COLORS[index]}}>
           <header><span className="org-mark" style={{background: PAIR_COLORS[index]}}>{initials(p.owner)}</span><strong>{p.owner || 'Owner not available'}</strong></header>
           <h3>{p.project_name}</h3>
+          {p.schedule_flag && <span className={`chip delay-chip ${p.schedule_flag.kind}`} title={`${p.schedule_flag.text} (vs. ${p.schedule_flag.compared_to}, per the utility filing)`}><Icon name="alert" size={13} />{delayLabel(p.schedule_flag)}</span>}
           <ul>
             <li><Icon name="line" size={15} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</li>
             <li><Icon name="calendar" size={15} />{p.construction?.start_date ? `${displayDate(p.construction.start_date)} → ${displayDate(p.construction.end_date) || '?'}${scheduleTag(p.construction)}` : scheduleLabel(p)}</li>

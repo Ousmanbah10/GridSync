@@ -129,6 +129,7 @@ select.control, .field select { appearance: none; -webkit-appearance: none; padd
 .chip-signal { background: var(--signal-soft); color: var(--signal); }
 .chip-ok { background: var(--ok-soft); color: var(--ok-ink); }
 .chip-warn { background: var(--warn-soft); color: #b45309; }
+.chip-danger { background: var(--danger-soft); color: var(--danger); }
 .chip-outline { background: transparent; border: 1px solid var(--line-strong); color: var(--muted); }
 .score-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .score-high { background: #dcfce7; color: #15803d; }

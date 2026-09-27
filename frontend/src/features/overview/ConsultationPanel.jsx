@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { distanceLabel, scoreOf, bandName, overlapLabel, priorityLabel, PAIR_COLORS } from './model'
+import { delayLabel, distanceLabel, scoreOf, bandName, overlapLabel, priorityLabel, PAIR_COLORS } from './model'
 import SavingsEstimate from './SavingsEstimate'
 import { estimateSavings } from './savings'
 import './ConsultationPanel.css'
@@ -71,6 +71,7 @@ export default function ConsultationPanel({ data, loading, opportunities, select
               <button className="link-plain" onClick={() => onOpenProject(p.project_record_id)}><strong>{p.project_name}</strong></button>
               <p><Icon name="line" size={13} />{[p.project_type, p.voltage_max_kv && `${p.voltage_max_kv} kV`, p.status || p.document_status].filter(Boolean).join(' · ') || 'Work type not supplied'}</p>
               <p><Icon name="calendar" size={13} />{scheduleLabel(p)}</p>
+              {p.schedule_flag && <p className="delay-line"><Icon name="alert" size={13} />{delayLabel(p.schedule_flag)} (per filing)</p>}
               <p><Icon name="pin" size={13} />{placeLabel(p)}</p>
               <p><Icon name="chart" size={13} />{money(p.project_cost) ? `Est. cost ${money(p.project_cost)} (${costTag(p.project_cost) ? 'illustrative' : 'published'})` : p.project_cost_note ? 'Cost redacted in public filing' : 'Cost not published'}</p>
             </div>

@@ -88,3 +88,5 @@
   .print-only h3 { font-size: 15px; margin: 14px 0 6px; }
   .analysis-grid { grid-template-columns: 1fr 260px; }
 }
+.selected-projects p.delay-line { color: var(--danger); font-weight: 500; }
+.selected-projects p.delay-line svg { color: var(--danger); }

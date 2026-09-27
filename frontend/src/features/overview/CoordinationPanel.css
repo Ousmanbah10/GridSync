@@ -112,3 +112,7 @@
 }
 .cost-tag { height: 20px; font-size: 11px; margin-left: 6px; }
 .draft ol { display: none; }
+.delay-chip { align-self: flex-start; height: 24px; }
+.delay-chip.delayed { background: var(--danger-soft); color: var(--danger); }
+.delay-chip.advanced { background: var(--ok-soft); color: var(--ok-ink); }
+.candidate-body small.risk-note { display: flex; align-items: center; gap: 5px; color: var(--danger); font-weight: 500; }

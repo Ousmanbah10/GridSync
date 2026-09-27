@@ -54,7 +54,8 @@ def project_context(project):
               'project_type', 'status', 'voltage_min_kv', 'voltage_max_kv', 'state_codes', 'rtos',
               'origin', 'destination', 'in_service_year', 'in_service_year_raw', 'construction',
               'permitting', 'project_cost', 'source_sheet', 'source_row', 'in_service_date',
-              'project_cost_note', 'document_description', 'document_need', 'document_status', 'document_evidence')
+              'project_cost_note', 'document_description', 'document_need', 'document_status', 'document_evidence',
+              'schedule_changes', 'schedule_flag')
     return public({k: project.get(k) for k in fields})
 
 
@@ -180,6 +181,7 @@ def analyze_pair(opportunity, projects, savings=None):
         'Construction windows with basis annual_spending_schedule are estimates from a spending schedule; say so. '
         'A project_cost or construction with basis illustrative is a demo placeholder, not a utility figure; say it is illustrative. '
         'Cite utility documents by document name and page from document_evidence when you use their facts. '
+        'schedule_changes record delays or advances versus earlier filings; a delayed project is a schedule risk worth naming. '
         'Never state dollar savings, percentages, or dates that are not in the data. In cost_outlook, describe which '
         'published costs exist and what would be needed to estimate savings; do not produce a number. '
         'Keep each list item to one sentence. Label uncertainty plainly.\n'

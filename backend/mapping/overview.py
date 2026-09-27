@@ -23,7 +23,7 @@ def build_overview(projects, substations, opportunities):
             'voltage_max_kv': project.get('voltage_max_kv'), 'source_urls': project.get('source_urls', []),
             'source_sheet': project.get('source_sheet'), 'source_row': project.get('source_row'),
             'project_cost_note': project.get('project_cost_note'), 'in_service_date': project.get('in_service_date'),
-            'document_status': project.get('document_status')})
+            'document_status': project.get('document_status'), 'schedule_flag': project.get('schedule_flag')})
         for entry in evidence:
             if entry.get('substation_id'):
                 associations[entry['substation_id']].add(record_id)

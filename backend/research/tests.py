@@ -246,7 +246,9 @@ Estimated Cost – GPC REDACTED
 * The ITS Assigned designation is for parity forecast purposes only
 Install reactors on the McIntosh - Purrysburg 230kV tie lines.
 REDACTED
-No Change"""
+Project advanced in 2025
+Project delayed from 2024 to 2027
+PUBLIC DISCLOSURE"""
 
 
 class DocumentTests(SimpleTestCase):
@@ -276,6 +278,15 @@ class DocumentTests(SimpleTestCase):
         self.assertEqual(update['construction']['end_date'], datetime(2026, 6, 1, tzinfo=timezone.utc))
         self.assertNotIn('project_cost', update)
         self.assertIn('redacted', update['project_cost_note'])
+        self.assertEqual([c['compared_to'] for c in update['schedule_changes']], ['previous Ten-Year Plan', 'previous IRP'])
+        self.assertEqual((update['schedule_flag']['kind'], update['schedule_flag']['years']), ('delayed', 3))
+
+    def test_change_lines_are_classified(self):
+        from .documents import classify_change, delay_summary
+        self.assertEqual(classify_change('No Change')['kind'], 'none')
+        self.assertEqual(classify_change('new Project')['kind'], 'new')
+        self.assertEqual(classify_change('Project advanced from 2029 to 2027 ')['to_year'], 2027)
+        self.assertIsNone(delay_summary([{'compared_to': 'x', **classify_change('No Change')}]))
 
     def test_duplicate_titles_are_ambiguous(self):
         entry = {'key': 'x'}

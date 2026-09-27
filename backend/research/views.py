@@ -45,11 +45,13 @@ def projects(request):
                         for field in ('project_name', 'owner', 'record_id', 'state_codes')]
     for param, field in [('owner', 'owner'), ('state', 'state_codes'), ('type', 'project_type')]:
         if request.GET.get(param): query[field] = request.GET[param][:200]
+    if request.GET.get('change') in ('delayed', 'advanced'):
+        query['schedule_flag.kind'] = request.GET['change']
     try: page = max(1, min(10000, int(request.GET.get('page', 1))))
     except ValueError: raise ValueError('Page must be a number.') from None
     fields = {field: 1 for field in ('project_name', 'owner', 'project_type', 'state_codes', 'status',
               'in_service_year', 'record_id', 'project_id', 'segment', 'construction', 'project_cost',
-              'origin', 'destination', 'source_urls', 'project_cost_note')}
+              'origin', 'destination', 'source_urls', 'project_cost_note', 'schedule_flag')}
     rows = list(db.projects.find(query, fields).sort([('project_name', 1), ('_id', 1)]).skip((page - 1) * 30).limit(30))
     filters = {key: sorted(str(v) for v in db.projects.distinct(field) if v)
                for key, field in [('owners', 'owner'), ('states', 'state_codes'), ('types', 'project_type')]}

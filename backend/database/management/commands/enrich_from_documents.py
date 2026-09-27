@@ -54,6 +54,8 @@ class Command(BaseCommand):
                         continue
                     matched += 1
                     self.stdout.write(f"  {project['record_id']}: p.{entry['page']} -> {', '.join(sorted(update))}")
+                    known = {(e.get('field'), e.get('value'), e.get('page')) for e in project.get('document_evidence') or []}
+                    evidence = [e for e in evidence if (e['field'], e['value'], e['page']) not in known]
                     if not options['dry_run']:
                         now = datetime.now(timezone.utc)
                         db.projects.update_one({'_id': project['_id']}, {

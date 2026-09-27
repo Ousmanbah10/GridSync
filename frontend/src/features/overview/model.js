@@ -122,3 +122,10 @@ export function overlapLabel(o) {
 
 // ' (illustrative)' / ' (est.)' suffix for a project's construction window.
 export const scheduleTag = construction => construction?.basis === 'illustrative' ? ' (illustrative)' : construction?.basis === 'annual_spending_schedule' ? ' (est.)' : ''
+
+// "Delayed 2024 → 2025" from a filing's documented schedule change; null when none.
+export function delayLabel(flag) {
+  if (!flag) return null
+  if (flag.from_year && flag.to_year) return `${flag.kind === 'delayed' ? 'Delayed' : 'Advanced'} ${flag.from_year} → ${flag.to_year}`
+  return flag.kind === 'delayed' ? 'Delayed' : `Advanced${flag.to_year ? ` in ${flag.to_year}` : ''}`
+}

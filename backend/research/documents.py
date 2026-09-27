@@ -98,11 +98,50 @@ def parse_georgia(pages, document):
         stop = next((i for i in range(note + 1, len(lines)) if lines[i] == 'REDACTED'), None) if note is not None else None
         description = ' '.join(lines[note + 1:stop]) if note is not None and stop is not None else None
         title = lines[teams - 1]
+        end = next((i for i in range(stop + 1, len(lines)) if lines[i].startswith('PUBLIC DISCLOSURE')), len(lines)) if stop is not None else None
+        changes = parse_changes(lines[stop + 1:end]) if stop is not None else []
         projects.append({'title': title, 'key': normalize_title(title), 'page': number, 'document': document,
+                         'schedule_changes': changes,
                          'utility_project_id': lines[teams].replace('Teams #', '').strip(),
                          'need_date': parse_date(*values[:3]), 'start_date': parse_date(*values[3:]),
                          'description': description, 'cost_redacted': 'REDACTED' in text})
     return projects
+
+
+CHANGE_BASES = ('previous Ten-Year Plan', 'previous IRP')
+
+
+def classify_change(text):
+    """'Project delayed from 2024 to 2027' -> {'kind': 'delayed', 'from_year': 2024, 'to_year': 2027, ...}."""
+    clean = ' '.join(text.split())
+    moved = re.search(r'(delayed|advanced) from (\d{4}) to (\d{4})', clean, re.I)
+    if moved:
+        return {'kind': moved.group(1).lower(), 'from_year': int(moved.group(2)), 'to_year': int(moved.group(3)), 'text': clean}
+    advanced_in = re.search(r'advanced in (\d{4})', clean, re.I)
+    if advanced_in:
+        return {'kind': 'advanced', 'from_year': None, 'to_year': int(advanced_in.group(1)), 'text': clean}
+    lowered = clean.casefold()
+    kind = 'delayed' if 'delay' in lowered else 'new' if 'new project' in lowered else 'none' if lowered == 'no change' else 'other'
+    return {'kind': kind, 'from_year': None, 'to_year': None, 'text': clean}
+
+
+def parse_changes(lines):
+    """The two change fields print in order: vs the previous Ten-Year Plan, then vs the previous IRP."""
+    if len(lines) != len(CHANGE_BASES):
+        return [{'compared_to': 'previous plan', **classify_change(' '.join(lines))}] if lines else []
+    return [{'compared_to': basis, **classify_change(line)} for basis, line in zip(CHANGE_BASES, lines)]
+
+
+def delay_summary(changes):
+    """Headline for a project: the largest documented delay, else an advance, else None."""
+    moved = [c for c in changes if c['kind'] in ('delayed', 'advanced')]
+    if not moved:
+        return None
+    delays = [c for c in moved if c['kind'] == 'delayed']
+    pick = max(delays, key=lambda c: (c['to_year'] or 0) - (c['from_year'] or 0)) if delays else moved[0]
+    years = (pick['to_year'] - pick['from_year']) if pick['from_year'] and pick['to_year'] else None
+    return {'kind': pick['kind'], 'from_year': pick['from_year'], 'to_year': pick['to_year'], 'years': years,
+            'compared_to': pick['compared_to'], 'text': pick['text']}
 
 
 def index_by_title(entries):
@@ -154,6 +193,12 @@ def georgia_enrichment(entry):
     evidence = [{'field': 'construction', 'value': f"{entry['start_date']:%Y-%m-%d} to {entry['need_date']:%Y-%m-%d}", **cite}]
     if entry.get('description'):
         update['document_description'] = entry['description']
+    if entry.get('schedule_changes'):
+        update['schedule_changes'] = entry['schedule_changes']
+        flag = delay_summary(entry['schedule_changes'])
+        if flag:
+            update['schedule_flag'] = flag
+            evidence.append({'field': 'schedule_change', 'value': flag['text'] + f" (vs. {flag['compared_to']})", **cite})
     if entry.get('cost_redacted'):
         update['project_cost_note'] = 'Estimated cost is redacted in the public filing.'
         evidence.append({'field': 'project_cost', 'value': 'Redacted in public filing', **cite})

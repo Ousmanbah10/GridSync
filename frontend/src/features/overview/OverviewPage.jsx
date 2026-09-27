@@ -3,10 +3,12 @@ import CoordinationPanel from './CoordinationPanel'
 import ConsultationPanel from './ConsultationPanel'
 import OverviewMap from './OverviewMap'
 import Icon from '../../ui/Icon'
+import PageBanner from '../../ui/PageBanner'
 import { ownerShort, scoreClass } from '../../ui/format'
 import { basisLabel, distanceLabel, opportunitiesAtLocation, timelineSummary, timelineLabel, filterOpportunities, filterProjects, ownerColor, uniqueValues, scoreOf, bandName, PAIR_COLORS } from './model'
 import './OverviewPage.css'
 
+const EYEBROWS = {overview: 'Network map', coordination: 'Coordination', consultation: 'AI analysis'}
 const EMPTY = { owner: '', type: '', year: '', status: '', search: '' }
 const HEADINGS = {
   overview: ['Utility Projects Map', 'Planned transmission and substation projects across utilities, with nearby cross-utility pairs highlighted.'],
@@ -74,13 +76,10 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
   ]
 
   return <div className="overview">
-    <header className="page-header">
-      <div><h1>{title}</h1><p>{subtitle}</p></div>
-      <div className="page-header-meta">
+    <PageBanner eyebrow={EYEBROWS[mode] || EYEBROWS.overview} title={title} subtitle={subtitle} photo={mode === 'coordination' ? '/substation-site.jpg' : undefined}>
         {data?.sources.length > 1 && <select className="control compact" aria-label="Source snapshot" value={source || data.source_id} onChange={e => {setSource(e.target.value); resetDataset()}}>{data.sources.map(s => <option value={s.id} key={s.id}>{s.name}</option>)}</select>}
         <select className="control compact" aria-label="Dataset" value={scope} disabled={loading} onChange={e => {setScope(e.target.value); resetDataset()}}><option value="demo">Curated view · 100 projects</option><option value="full">Full dataset{data?.demo?.total_records ? ` · ${data.demo.total_records}` : ''}</option></select>
-      </div>
-    </header>
+    </PageBanner>
 
     {error && <div className="notice notice-error" role="alert">{error}<button className="btn btn-sm" onClick={reload}>Retry</button></div>}
 

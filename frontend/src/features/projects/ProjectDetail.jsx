@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { costTag, initials, money, routeLabel, scoreClass } from '../../ui/format'
 import { request, sourceUrl } from './api'
-import { bandName, miles, scheduleTag, PAIR_COLORS } from '../overview/model'
+import { bandName, delayLabel, miles, scheduleTag, PAIR_COLORS } from '../overview/model'
 import './ProjectsPage.css'
 
 const EVIDENCE_LABELS = {project_cost: 'Estimated cost', construction: 'Construction window', in_service_date: 'In-service date'}
@@ -41,6 +41,7 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
           <p>{routeLabel(project) || 'Endpoints not supplied'} · {project.states?.join(', ') || project.state_codes?.join(', ') || 'State unknown'}</p>
           <div className="hero-chips">
             {status && <span className="chip chip-ok">{status}</span>}
+            {project.schedule_flag && <span className={`chip chip-${project.schedule_flag.kind === 'delayed' ? 'danger' : 'ok'}`}>{delayLabel(project.schedule_flag)}</span>}
             {project.voltage_max_kv && <span className="chip">{project.voltage_max_kv} kV</span>}
             {project.project_type && <span className="chip">{project.project_type}</span>}
             {related.length > 0 && <span className="chip chip-signal">{related.length} coordination {related.length === 1 ? 'pair' : 'pairs'}</span>}
@@ -91,6 +92,8 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
           </section>
         </div>
         <aside className="detail-side">
+          {project.schedule_changes?.length > 0 && <section className="card"><header className="card-header"><div><h2>Schedule changes</h2><p>As recorded in the utility's latest filing</p></div></header>
+            <ul className="changes">{project.schedule_changes.map((c, i) => <li key={i} className={c.kind}><span className="change-dot" /><div><strong>{c.text}</strong><small>Compared with the {c.compared_to}</small></div></li>)}</ul></section>}
           {project.document_evidence?.length > 0 && <section className="card"><header className="card-header"><div><h2>From utility documents</h2><p>Values read from the utility's own planning filing</p></div></header>
             <ul className="evidence-list">{project.document_evidence.map((e, i) => <li key={i}><span>{EVIDENCE_LABELS[e.field] || e.field}</span><strong>{e.value}</strong><small><Icon name="file" size={12} />{e.document_title || e.document} · p.{e.page}{e.utility_project_id ? ` · ID ${e.utility_project_id}` : ''}</small></li>)}</ul></section>}
           <section className="card"><header className="card-header"><div><h2>Source documents</h2><p>Original utility and planning filings</p></div></header>

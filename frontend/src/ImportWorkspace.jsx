@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from './ui/Icon'
+import PageBanner from './ui/PageBanner'
 import './ImportWorkspace.css'
 
 
@@ -88,8 +89,9 @@ function ImportWorkspace({ onBack }) {
   return (
     <div className="import">
       <button className="btn btn-ghost btn-sm back-link" onClick={onBack}><Icon name="arrowLeft" size={14} />Project library</button>
-      <header className="page-header"><div><span className="eyebrow">Data import</span><h1>Import a transmission workbook</h1><p>Extract projects and substations from an Excel workbook, review every record, then save it with its source attached.</p></div>
-        <span className={`chip ${connection?.database_ready ? 'chip-ok' : 'chip-outline'}`}><i className="dot" style={{background: 'currentColor'}} />{connection?.database_ready ? 'MongoDB connected' : 'Database not connected'}</span></header>
+      <PageBanner eyebrow="Data import" title="Import a transmission workbook" subtitle="Extract projects and substations from an Excel workbook, review every record, then save it with its source attached.">
+        <span className={`chip ${connection?.database_ready ? 'chip-ok' : 'chip-outline'}`}><i className="dot" style={{background: 'currentColor'}} />{connection?.database_ready ? 'MongoDB connected' : 'Database not connected'}</span>
+      </PageBanner>
 
       <section className="kpis import-kpis" aria-label="Current database records">
         <div><span>Project records</span><strong>{count('projects')}</strong><small>Projects and study concepts</small></div>
