@@ -1,0 +1,43 @@
+.map-panel { margin: 0 0 26px; }
+.map-panel > .panel-heading { padding: 23px 24px; border-bottom: 1px solid #eef1f4; }
+.map-setup { padding: 35px 24px; text-align: center; background: #f8fbfd; }
+.map-setup > span { font-size: 34px; color: #4f87af; }
+.map-setup h3 { margin: 10px 0; font-size: 16px; }
+.map-setup p { max-width: 580px; margin: 0 auto 15px; font-size: 12px; color: #74879a; }
+.map-setup a { color: #1e56d6; font-size: 12px; }
+.map-controls { display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 24px; }
+.map-controls input, .map-controls select { border: 1px solid #dbe4ed; padding: 9px 12px; border-radius: 6px; font: inherit; font-size: 12px; }
+.map-controls input { flex: 1; min-width: 160px; }
+.google-map-canvas { height: 470px; width: 100%; background: #edf2f6; }
+.map-caption { padding: 12px 24px; font-size: 11px; color: #78899a; }
+.substation-info { padding: 6px; color: #243c53; max-width: 260px; }
+.substation-info p { margin: 8px 0; font-size: 12px; }
+.substation-info small { color: #74869a; }
+.map-panel > .notice { margin: 0 20px 15px; }
+@media (max-width: 560px) { .google-map-canvas { height: 360px; } }
+
+/* Decorative halos leave Google's data markers and click targets intact. */
+.substation-pulse-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.substation-pulse {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 2px solid #1e56d6;
+  border-radius: 50%;
+  background: rgb(30 86 214 / 12%);
+  pointer-events: none;
+  animation: substation-halo 2.4s ease-out infinite;
+}
+.substation-pulse-layer[hidden] { display: none; }
+@keyframes substation-halo {
+  0% { transform: scale(.65); opacity: .7; }
+  80%, 100% { transform: scale(1.7); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .substation-pulse-layer { display: none; }
+}

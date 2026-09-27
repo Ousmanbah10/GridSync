@@ -108,7 +108,8 @@ SCHEMAS = {
         **COMMON,
         "project_record_ids": array({"bsonType": "objectId"}, minItems=2, uniqueItems=True),
         "distance_km": NUMBER,
-        "distance_basis": {"enum": ["route", "substation", None]},
+        "distance_basis": {"enum": ["route", "substation", "approximate_corridor", "other_endpoints",
+                                    "shared_substation_only", None]},
         "timeline_overlap": optional("bool"),
         "overlap_start": DATE, "overlap_end": DATE,
         "coordination_score": NUMBER,
@@ -168,3 +169,15 @@ def setup_database(db):
                                  validationLevel="strict", validationAction="error")
         db[name].create_indexes(INDEXES[name])
         yield name
+
+
+def update_schemas(db, names):
+    """Explicit, opt-in validator update for existing collections. Documents are not rewritten."""
+    existing = {item["name"] for item in db.list_collections()}
+    for name in names:
+        if name not in SCHEMAS:
+            raise ValueError(f"Unknown collection {name}.")
+        if name in existing:
+            db.command("collMod", name, validator={"$jsonSchema": SCHEMAS[name]},
+                       validationLevel="strict", validationAction="error")
+            yield name

@@ -1,0 +1,36 @@
+.projects-filters { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(240px, 1.4fr); }
+.projects-table td:first-child { min-width: 240px; max-width: 360px; }
+.owner-cell { font-weight: 500; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 200px; }
+.projects-table { min-width: 1080px; }
+.nowrap { white-space: nowrap; }
+.source-link { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
+
+.back-link { margin: -6px 0 12px -8px; }
+.status-chip { height: 26px; padding: 0 10px; font-size: 12px; }
+.detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.detail-main, .detail-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.spec-list { padding: 4px 18px; }
+.spec-list > div { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.spec-list > div:last-child { border-bottom: 0; }
+.spec-list dt { color: var(--muted); }
+.spec-list dd { color: var(--ink); overflow-wrap: anywhere; }
+.spec-list dd.missing { color: var(--faint); font-style: italic; }
+.detail-side .spec-list > div { grid-template-columns: 80px minmax(0, 1fr); }
+.detail-note { font-size: 12px; color: var(--faint); }
+.source-links { list-style: none; margin: 0; padding: 8px; }
+.source-links a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); color: var(--ink-2); font-size: 13px; }
+.source-links a:hover { background: var(--surface-2); text-decoration: none; color: var(--accent); }
+.source-links a span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-links svg { color: var(--faint); flex-shrink: 0; }
+.source-links .muted { padding: 8px 10px; font-size: 13px; color: var(--faint); }
+
+@media (max-width: 1000px) {
+  .projects-filters { grid-template-columns: 1fr 1fr; }
+  .detail-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .spec-list > div { grid-template-columns: 1fr; gap: 2px; }
+  .pager { flex-direction: column; align-items: flex-start; }
+}
+.projects-table td:nth-child(3) .clamp { min-width: 130px; max-width: 170px; }

@@ -1,0 +1,80 @@
+.control.compact { height: 36px; width: auto; min-width: 190px; font-size: 13px; }
+
+.filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.3fr); gap: 12px; margin-bottom: 14px; }
+.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 14px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.legend > span { display: inline-flex; align-items: center; gap: 8px; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.legend .dot { width: 11px; height: 11px; }
+.legend-line { width: 20px; height: 3px; border-radius: 2px; background: var(--accent); }
+.legend-substation { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--ink); }
+
+/* Map */
+.map-card-shell { position: relative; overflow: hidden; height: clamp(560px, calc(100vh - 300px), 860px); background: #e8ecef; }
+.overview-canvas { position: absolute; inset: 0; }
+.map-caption { margin-top: 10px; font-size: 12px; color: var(--faint); }
+.map-rail { position: absolute; z-index: 5; top: 16px; left: 16px; bottom: 16px; width: 232px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.map-rail > * { pointer-events: auto; }
+.stat { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: rgb(255 255 255 / 96%); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.stat-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: color-mix(in srgb, currentColor 10%, white); flex-shrink: 0; }
+.stat > div { min-width: 0; }
+.stat strong { display: block; font-size: 24px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }
+.stat small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-signal { background: #fff6f5; border-color: #f7d4d1; }
+.stat-signal strong, .stat-signal small { color: var(--signal); }
+.map-layers { margin-top: auto; padding: 12px 14px; background: rgb(255 255 255 / 96%); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px; }
+.map-layers label { display: flex; align-items: center; gap: 10px; padding: 5px 0; color: var(--ink-2); cursor: pointer; }
+.map-layers label.unavailable { color: var(--faint); cursor: default; }
+.map-layers .link-button { margin-top: 6px; font-size: 13px; }
+.pair-focused .map-rail .stat { display: none; }
+
+.map-popup { position: absolute; z-index: 6; top: 16px; right: 64px; width: 360px; max-width: calc(100% - 32px); max-height: calc(100% - 32px); overflow-y: auto; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px rgb(15 23 42 / 16%); display: flex; flex-direction: column; gap: 14px; }
+.map-popup > header { display: flex; align-items: center; gap: 8px; }
+.map-popup > header > strong { font-size: 15px; flex: 1; }
+.map-popup > header .icon-button { margin-left: auto; margin-right: -6px; }
+.popup-pair { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.popup-pair li { display: flex; align-items: flex-start; gap: 10px; }
+.popup-pair .dot { width: 12px; height: 12px; margin-top: 4px; }
+.link-plain { border: 0; background: none; padding: 0; text-align: left; font-size: 14px; line-height: 1.4; }
+.link-plain strong { font-weight: 600; color: var(--ink); }
+.link-plain span { color: var(--muted); }
+.link-plain:hover strong { color: var(--accent); }
+.popup-facts { display: flex; flex-direction: column; gap: 8px; font-size: 13px; padding-top: 12px; border-top: 1px solid var(--line); }
+.popup-facts > div { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; }
+.popup-facts dt { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.popup-facts dd { color: var(--ink); font-weight: 500; }
+.popup-note { font-size: 12px; color: var(--muted); line-height: 1.55; }
+.popup-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.map-hint { position: absolute; z-index: 5; top: 16px; right: 64px; display: flex; align-items: center; gap: 8px; max-width: 330px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px; color: var(--muted); }
+.map-hint svg { color: var(--signal); flex-shrink: 0; }
+.map-empty { position: absolute; z-index: 6; left: 50%; top: 45%; transform: translateX(-50%); padding: 12px 16px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); font-size: 14px; }
+
+/* Google Maps chrome we control */
+.map-perspective-controls { position: absolute; z-index: 5; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); }
+.map-perspective-controls > div { display: flex; gap: 2px; }
+.map-perspective-controls button { height: 28px; min-width: 32px; padding: 0 9px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); font-size: 12px; font-weight: 500; }
+.map-perspective-controls button:hover:not(:disabled) { background: var(--sunken); }
+.map-perspective-controls button[aria-pressed=true] { background: var(--ink); color: #fff; }
+.map-perspective-controls small { display: none; }
+.overview-map-message { position: absolute; z-index: 7; left: 50%; top: 30%; transform: translateX(-50%); width: min(360px, calc(100% - 32px)); padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); font-size: 14px; }
+.overview-map-message p { margin-top: 6px; color: var(--muted); font-size: 13px; }
+.pair-map-label { position: absolute; transform: translateX(-50%); max-width: 220px; padding: 5px 10px; border: 0; border-left: 3px solid; border-radius: 6px; background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgb(15 23 42 / 22%); font: 600 12px var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.substation-info { padding: 2px; color: var(--ink); max-width: 260px; font-family: var(--sans); }
+.substation-info strong { font-weight: 600; font-size: 13px; }
+.substation-info p { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+@media (max-width: 1200px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .filters > label:last-child { grid-column: 1 / -1; } }
+@media (max-width: 900px) {
+  .map-rail { width: auto; right: 16px; bottom: auto; flex-direction: row; flex-wrap: wrap; }
+  .stat { flex: 1 1 140px; padding: 10px 12px; gap: 10px; }
+  .stat-icon { width: 32px; height: 32px; }
+  .stat strong { font-size: 19px; }
+  .map-layers { display: none; }
+  .map-hint { display: none; }
+  .map-popup { top: auto; bottom: 12px; right: 12px; left: 12px; width: auto; max-height: 60%; }
+}
+@media (max-width: 720px) {
+  .filters { grid-template-columns: 1fr 1fr; }
+  .control.compact { min-width: 0; width: 100%; }
+  .map-card-shell { height: 640px; }
+  .stat:nth-child(2), .stat:nth-child(3) { display: none; }
+  .map-perspective-controls { bottom: auto; top: 90px; left: auto; right: 12px; transform: none; }
+}

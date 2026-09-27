@@ -1,0 +1,77 @@
+.import .back-link { margin: -6px 0 12px -8px; }
+.import-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.stepper { list-style: none; display: flex; gap: 8px; padding: 0; margin: 0 0 16px; }
+.stepper li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--faint); }
+.stepper li:not(:last-child)::after { content: ''; width: 36px; height: 1px; background: var(--line-strong); margin-left: 8px; }
+.stepper li > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line-strong); font-size: 11px; background: var(--surface); }
+.stepper li.current { color: var(--ink); font-weight: 500; }
+.stepper li.current > span { border-color: var(--accent); color: var(--accent); }
+.stepper li.done { color: var(--ink-2); }
+.stepper li.done > span { background: var(--ok); border-color: var(--ok); color: #fff; }
+
+.import-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; margin-bottom: 20px; align-items: start; }
+.dropzone { display: flex; align-items: center; gap: 14px; padding: 18px; border: 1.5px dashed var(--line-strong); border-radius: var(--radius); background: var(--surface-2); }
+.dropzone.has-file { border-style: solid; background: var(--surface); }
+.dropzone.disabled { opacity: .6; }
+.dropzone > div { flex: 1; min-width: 0; }
+.dropzone strong { display: block; font-weight: 500; overflow-wrap: anywhere; }
+.dropzone p { font-size: 12px; color: var(--muted); }
+.dropzone input { position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; }
+.dropzone-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); color: var(--muted); flex-shrink: 0; }
+.option { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.option.unavailable { cursor: default; }
+.option input { margin-top: 2px; }
+.option > span:nth-child(2) { flex: 1; }
+.option strong { display: block; font-size: 13px; font-weight: 500; }
+.option small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.import-actions { display: flex; align-items: center; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+.import-actions .link-button { font-size: 13px; }
+.processing { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.howto { list-style: none; margin: 0; padding: 6px 18px; }
+.howto li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.howto li:last-child { border-bottom: 0; }
+.howto li > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line-strong); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.howto strong { font-size: 13px; font-weight: 600; }
+.howto p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.preview-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--line); }
+.preview-controls .search-box { width: 260px; }
+.segmented { display: inline-flex; padding: 2px; background: var(--sunken); border-radius: var(--radius-sm); }
+.segmented button { border: 0; background: transparent; padding: 5px 12px; border-radius: 3px; font-size: 13px; color: var(--muted); }
+.segmented button[aria-selected=true] { background: var(--surface); color: var(--ink); font-weight: 500; box-shadow: 0 1px 2px rgb(15 23 34 / 10%); }
+.segmented .mono { font-size: 11px; color: var(--faint); margin-left: 4px; }
+.review-details { padding: 0 14px 14px; border-top: 1px solid var(--line); }
+.review-details details { border: 1px solid var(--line); border-radius: var(--radius-sm); margin-top: 12px; }
+.review-details summary { cursor: pointer; padding: 10px 14px; font-size: 13px; font-weight: 500; }
+.review-details summary > span { float: right; font-size: 12px; color: var(--faint); font-weight: 400; }
+.warnings { max-height: 260px; overflow: auto; font-size: 12px; color: var(--warn); margin: 0; padding: 0 20px 12px 32px; }
+.warnings li { padding: 3px 0; }
+.mapping { padding: 4px 14px 14px; font-size: 12px; }
+.mapping h3 { font-size: 13px; margin: 8px 0; }
+.mapping dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.mapping dl > div { background: var(--surface-2); padding: 6px 8px; border-radius: 3px; overflow-wrap: anywhere; }
+.mapping dt { color: var(--muted); }
+.mapping p { margin-top: 8px; color: var(--muted); }
+.review-details .notice { margin: 12px 0 0; }
+.confirm-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px; border-top: 1px solid var(--line); background: var(--surface-2); }
+.confirm-bar label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+
+@media (max-width: 1000px) { .import-layout { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .import-kpis { grid-template-columns: 1fr 1fr 1fr; }
+  .import-kpis > div:nth-child(3) { border-left: 1px solid var(--line); }
+  .import-kpis > div:nth-child(n+3) { border-top: 0; }
+  .stepper li:not(:last-child)::after { width: 12px; }
+  .preview-controls { flex-direction: column; align-items: stretch; }
+  .preview-controls .search-box { width: 100%; }
+  .confirm-bar { flex-direction: column; align-items: stretch; }
+  .dropzone { flex-wrap: wrap; }
+}
+
+.kpis { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.kpis > div { padding: 18px 22px; border-left: 1px solid var(--line); min-width: 0; }
+.kpis > div:first-child { border-left: 0; }
+.kpis span { display: block; font-size: 13px; color: var(--muted); font-weight: 500; }
+.kpis strong { display: block; font-size: 28px; font-weight: 700; line-height: 1.2; margin: 6px 0 2px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpis small { display: block; font-size: 12px; color: var(--faint); }
+.bands-note { margin: 0 20px 18px; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 12px; color: var(--muted); }

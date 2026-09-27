@@ -32,7 +32,7 @@ def local_api(view):
 @require_GET
 @local_api
 def status(request):
-    result = {'csrf_token': get_token(request), 'gemini_ready': bool(settings.GEMINI_API_KEY),
+    result = {'csrf_token': get_token(request), 'gemini_ready': bool(settings.GEMINI_API_KEY and settings.GEMINI_MODEL),
               'gemini_model': settings.GEMINI_MODEL, 'database_ready': False, 'counts': None}
     try:
         db = get_database()

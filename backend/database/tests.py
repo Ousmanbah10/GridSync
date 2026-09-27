@@ -105,9 +105,13 @@ class GeminiMappingTests(SimpleTestCase):
             {'field': 'project_id', 'column': 'Project ID'},
             {'field': 'project_name', 'column': 'Project name'}]}
         response = BytesIO(json.dumps({'candidates': [{'content': {'parts': [{'text': json.dumps(output)}]}}]}).encode())
-        with patch('database.importing.mapping.urlopen', return_value=response) as call:
+        with patch('database.importing.gemini.urlopen', return_value=response) as call:
             result = get_mapping(['Record ID', 'Project ID', 'Project name'], 'projects', True)
         self.assertEqual(result['project_name'], 'Project name')
+        request = call.call_args.args[0]
+        self.assertTrue(request.full_url.startswith('https://generativelanguage.googleapis.com/v1beta/models/'))
+        self.assertEqual(request.get_header('X-goog-api-key'), 'test-key')
+        self.assertNotIn('test-key', request.full_url)
         self.assertNotIn('test-key', call.call_args.args[0].data.decode())
         self.assertNotIn(settings.MONGODB_URI, call.call_args.args[0].data.decode())
 
