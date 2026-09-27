@@ -9,6 +9,8 @@ import { basisLabel, distanceLabel, opportunitiesAtLocation, timelineSummary, ti
 import './OverviewPage.css'
 
 const EYEBROWS = {overview: 'Network map', coordination: 'Coordination', consultation: 'AI analysis'}
+// Friendly names for imported workbooks; unknown files fall back to their name without the extension.
+const datasetLabel = name => !name ? 'Dataset' : /overlap/i.test(name) ? 'Dominion × Georgia Power · challenge set' : /ourgridfuture/i.test(name) ? 'National planned projects' : name.replace(/\.xlsx$/i, '').replace(/_/g, ' ')
 const EMPTY = { owner: '', type: '', year: '', status: '', search: '' }
 const HEADINGS = {
   overview: ['Utility Projects Map', 'Planned transmission and substation projects across utilities, with nearby cross-utility pairs highlighted.'],
@@ -77,8 +79,13 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
 
   return <div className="overview">
     <PageBanner eyebrow={EYEBROWS[mode] || EYEBROWS.overview} title={title} subtitle={subtitle} photo={mode === 'coordination' ? '/substation-site.jpg' : undefined}>
-        {data?.sources.length > 1 && <select className="control compact" aria-label="Source snapshot" value={source || data.source_id} onChange={e => {setSource(e.target.value); resetDataset()}}>{data.sources.map(s => <option value={s.id} key={s.id}>{s.name}</option>)}</select>}
-        <select className="control compact" aria-label="Dataset" value={scope} disabled={loading} onChange={e => {setScope(e.target.value); resetDataset()}}><option value="demo">Curated view · 100 projects</option><option value="full">Full dataset{data?.demo?.total_records ? ` · ${data.demo.total_records}` : ''}</option></select>
+        {mode === 'overview'
+          ? <select className="control compact dataset-select" aria-label="Dataset" value={`${source || data?.source_id || ''}|${scope}`} disabled={loading} onChange={e => { const [id, next] = e.target.value.split('|'); setSource(id); setScope(next); resetDataset() }}>
+              {(data?.sources || []).flatMap(s => /overlap/i.test(s.name) ? [[`${s.id}|demo`, datasetLabel(s.name)]]
+                : [[`${s.id}|demo`, `${datasetLabel(s.name)} · curated 100`], [`${s.id}|full`, `${datasetLabel(s.name)} · all projects`]]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              {!data && <option value={`${source}|${scope}`}>Loading…</option>}
+            </select>
+          : data && <span className="dataset-chip"><Icon name="layers" size={14} />{datasetLabel(data.sources.find(s => s.id === data.source_id)?.name)}{/overlap/i.test(data.sources.find(s => s.id === data.source_id)?.name || '') ? '' : scope === 'full' ? ' · all projects' : ' · curated 100'}</span>}
     </PageBanner>
 
     {error && <div className="notice notice-error" role="alert">{error}<button className="btn btn-sm" onClick={reload}>Retry</button></div>}

@@ -78,3 +78,5 @@
   .stat:nth-child(2), .stat:nth-child(3) { display: none; }
   .map-perspective-controls { bottom: auto; top: 90px; left: auto; right: 12px; transform: none; }
 }
+.dataset-select { min-width: 300px !important; }
+.dataset-chip { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; background: rgb(255 255 255 / 12%); border: 1px solid rgb(255 255 255 / 18%); color: #dbe5f3; font-size: 13px; font-weight: 500; white-space: nowrap; }
