@@ -85,7 +85,7 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
                 : [[`${s.id}|demo`, `${datasetLabel(s.name)} · curated 100`], [`${s.id}|full`, `${datasetLabel(s.name)} · all projects`]]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               {!data && <option value={`${source}|${scope}`}>Loading…</option>}
             </select>
-          : data && <span className="dataset-chip"><Icon name="layers" size={14} />{datasetLabel(data.sources.find(s => s.id === data.source_id)?.name)}{/overlap/i.test(data.sources.find(s => s.id === data.source_id)?.name || '') ? '' : scope === 'full' ? ' · all projects' : ' · curated 100'}</span>}
+          : null}
     </PageBanner>
 
     {error && <div className="notice notice-error" role="alert">{error}<button className="btn btn-sm" onClick={reload}>Retry</button></div>}
