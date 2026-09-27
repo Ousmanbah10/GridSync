@@ -15,7 +15,7 @@ def opportunities(request):
     if request.GET.get('source_id'):
         query['source_id'] = request.GET['source_id']
     collection = get_database().coordination_opportunities
-    rows = list(collection.find(query).sort([('coordination_score', -1), ('priority', 1), ('distance_km', 1), ('_id', 1)]).skip(offset).limit(limit))
+    rows = list(collection.find(query).sort([('distance_km', 1), ('priority', 1), ('_id', 1)]).skip(offset).limit(limit))
     for row in rows:
         row['_id'] = str(row['_id'])
         row['project_record_ids'] = list(map(str, row['project_record_ids']))

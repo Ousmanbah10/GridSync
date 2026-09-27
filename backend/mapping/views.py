@@ -36,7 +36,7 @@ def overview(request):
     opportunities = list(db.coordination_opportunities.find(
         query | {'generated_by': GENERATOR, 'active': True},
         {'location_evidence': 0, 'ai_analysis': 0, 'coordination_plan': 0, 'meeting_agenda': 0}
-    ).sort([('coordination_score', -1), ('priority', 1), ('distance_km', 1), ('_id', 1)])) if selected else []
+    ).sort([('distance_km', 1), ('priority', 1), ('_id', 1)])) if selected else []
     data = build_overview(projects, stations, opportunities)
     if request.GET.get('scope', 'demo') == 'demo':
         from .demo import apply_demo

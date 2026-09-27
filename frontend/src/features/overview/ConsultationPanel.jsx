@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
-import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { delayLabel, distanceLabel, scoreOf, bandName, overlapLabel, priorityLabel, PAIR_COLORS } from './model'
+import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel } from '../../ui/format'
+import { byProximity, delayLabel, distanceLabel, bandName, overlapLabel, PAIR_COLORS } from './model'
 import SavingsEstimate from './SavingsEstimate'
 import { estimateSavings } from './savings'
 import './ConsultationPanel.css'
@@ -10,7 +10,7 @@ import './ConsultationPanel.css'
 const TABS = [['summary', 'Executive Summary'], ['resources', 'Resource Opportunities'], ['risks', 'Risks & Considerations'], ['steps', 'Recommended Next Steps']]
 
 export default function ConsultationPanel({ data, loading, opportunities, selectedId, onSelect, onOpenProject }) {
-  const ranked = [...opportunities].sort((a, b) => scoreOf(b) - scoreOf(a) || a.distance_km - b.distance_km)
+  const ranked = [...opportunities].sort(byProximity)
   const active = ranked.find(o => o.id === selectedId) || ranked[0]
   const byId = new Map(data?.projects.map(p => [p.project_record_id, p]) || [])
   const projects = active?.project_record_ids.map(id => byId.get(id)).filter(Boolean) || []
@@ -44,14 +44,13 @@ export default function ConsultationPanel({ data, loading, opportunities, select
   if (!active) return <div className="card empty">{loading ? <><span className="spinner" /> Loading coordination candidates…</> : <><strong>No coordination candidates in view</strong>Clear the map filters to choose a pair.</>}</div>
   const analysis = state.id === activeId ? state.analysis : null
   const pending = state.id !== activeId
-  const [priority, priorityClass] = priorityLabel(active)
   const costs = projects.map(p => ({ p, label: money(p.project_cost), amount: Number(p.project_cost?.amount) }))
   const priced = costs.filter(c => c.label && Number.isFinite(c.amount))
   const maxCost = Math.max(1, ...priced.map(c => c.amount))
 
   return <div className="consultation">
     <div className="consult-toolbar no-print">
-      <label className="field pair-picker">Project pair<select value={active.id} onChange={e => onSelect(e.target.value)}>{ranked.map(o => <option key={o.id} value={o.id}>{Math.round(scoreOf(o))}/100 · {o.project_names?.join(' – ')}</option>)}</select></label>
+      <label className="field pair-picker">Project pair<select value={active.id} onChange={e => onSelect(e.target.value)}>{ranked.map(o => <option key={o.id} value={o.id}>{o.project_names?.join(' – ')} · {distanceLabel(o)}</option>)}</select></label>
       <div className="consult-actions">
         <button className="btn" onClick={() => window.print()} disabled={!analysis}><Icon name="download" size={15} />Export Report</button>
         <button className="btn btn-primary" onClick={generate} disabled={state.busy || pending || !state.configured}>{state.busy ? <><span className="spinner light" />Analyzing…</> : <><Icon name={analysis ? 'refresh' : 'chat'} size={15} />{analysis ? 'Regenerate analysis' : 'Generate analysis'}</>}</button>
@@ -62,7 +61,7 @@ export default function ConsultationPanel({ data, loading, opportunities, select
 
     <div className="consult-grid">
       <section className="card">
-        <header className="card-header"><div><h2>Selected Projects</h2><p>{distanceLabel(active)} · {overlapLabel(active)}</p></div><div className="consult-chips"><span className={`score-chip ${scoreClass(scoreOf(active))}`}>{Math.round(scoreOf(active))}/100</span><span className={`chip ${priorityClass}`}>{priority}</span></div></header>
+        <header className="card-header"><div><h2>Selected Projects</h2><p>{distanceLabel(active)} · {overlapLabel(active)}</p></div><div className="consult-chips"><span className="chip chip-signal">{bandName(active.band)}</span></div></header>
         <div className="selected-body">
           <ul className="selected-projects">{projects.map((p, index) => <li key={p.project_record_id}>
             <span className="org-mark" style={{background: PAIR_COLORS[index]}}>{initials(p.owner)}</span>

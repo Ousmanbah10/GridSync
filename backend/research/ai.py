@@ -172,8 +172,7 @@ def _strings(value, limit=8):
 def analyze_pair(opportunity, projects, savings=None):
     """Coordination brief for one candidate pair, grounded only in the saved records."""
     facts = {key: opportunity.get(key) for key in (
-        'distance_km', 'distance_basis', 'band', 'shared_substations', 'corridor_crossing', 'coordination_score',
-        'score_breakdown', 'timeline', 'in_service_years', 'shared_resources', 'qualification', 'eligibility')}
+        'distance_km', 'distance_basis', 'band', 'shared_substations', 'corridor_crossing', 'timeline', 'in_service_years', 'shared_resources', 'qualification', 'eligibility')}
     output = decode(call(payload(
         'Write a coordination brief for these two transmission projects owned by different utilities. '
         'Use ONLY the supplied records and screening facts; no outside knowledge or web search. '

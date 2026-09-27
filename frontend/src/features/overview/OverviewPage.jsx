@@ -4,8 +4,8 @@ import ConsultationPanel from './ConsultationPanel'
 import OverviewMap from './OverviewMap'
 import Icon from '../../ui/Icon'
 import PageBanner from '../../ui/PageBanner'
-import { ownerShort, scoreClass } from '../../ui/format'
-import { basisLabel, distanceLabel, opportunitiesAtLocation, timelineSummary, timelineLabel, filterOpportunities, filterProjects, ownerColor, uniqueValues, scoreOf, bandName, PAIR_COLORS } from './model'
+import { ownerShort } from '../../ui/format'
+import { basisLabel, distanceLabel, opportunitiesAtLocation, timelineSummary, timelineLabel, filterOpportunities, filterProjects, ownerColor, uniqueValues, bandName, PAIR_COLORS } from './model'
 import './OverviewPage.css'
 
 const EYEBROWS = {overview: 'Network map', coordination: 'Coordination', consultation: 'AI analysis'}
@@ -124,7 +124,7 @@ export default function OverviewPage({ mode, onNavigate, onOpenProject }) {
         </article>}
 
         {current && !loading && !error && <article className="map-popup">
-          <header><span className={`score-chip ${scoreClass(scoreOf(current))}`}>{Math.round(scoreOf(current))}/100</span><span className="chip chip-signal">{bandName(current.band)}</span><button className="icon-button" aria-label="Close opportunity and return to overview" onClick={closeSelection}><Icon name="close" /></button></header>
+          <header><span className="chip chip-signal">{bandName(current.band)}</span><button className="icon-button" aria-label="Close opportunity and return to overview" onClick={closeSelection}><Icon name="close" /></button></header>
           {clickedLocation && nearby.length > 1 && <label className="field">{nearby.length} candidates here<select aria-label="Nearby opportunities at selected location" value={current.id} onChange={e => setSelectedId(e.target.value)}>{nearby.map(o => <option key={o.id} value={o.id}>{o.project_names.join(' / ')} · {distanceLabel(o)}</option>)}</select></label>}
           <ul className="popup-pair">{current.project_names?.map((name, index) => <li key={index}><i className="dot" style={{background: PAIR_COLORS[index]}} /><button className="link-plain" onClick={() => onOpenProject(current.project_record_ids[index])}><strong>{name}</strong> <span>({ownerShort(current.owners?.[index])})</span></button></li>)}</ul>
           <dl className="popup-facts">

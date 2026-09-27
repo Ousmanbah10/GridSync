@@ -20,8 +20,8 @@ export function ownerColor(owner, owners) {
 }
 export const bandName = band => ({touching_crossing: 'Mapped route crossing', shared_substation: 'Shared substation', shared_land: 'Shared land candidate', shared_logistics: 'Shared logistics candidate', shared_crews_equipment: 'Shared crews & equipment'}[band] || 'Spatial candidate')
 
-// Coordination score (proximity + timeline + compatibility); falls back to older saved rows.
-export const scoreOf = o => o?.coordination_score ?? o?.distance_score ?? 0
+// Rank by location (the challenge's primary signal): closest first, longer construction overlap breaks ties.
+export const byProximity = (a, b) => a.distance_km - b.distance_km || (b.timeline?.overlap_days || 0) - (a.timeline?.overlap_days || 0)
 
 // Distances are stored in km; the challenge rule and all labels use miles.
 export const KM_PER_MILE = 1.609344

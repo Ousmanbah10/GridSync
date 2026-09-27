@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
-import { costTag, initials, money, routeLabel, scoreClass } from '../../ui/format'
+import { costTag, initials, money, routeLabel } from '../../ui/format'
 import { request, sourceUrl } from './api'
 import { bandName, delayLabel, miles, scheduleTag, PAIR_COLORS } from '../overview/model'
 import ResearchPanel from './ResearchPanel'
@@ -68,14 +68,13 @@ export default function ProjectDetail({ projectId, onBack, onOpenProject }) {
       <div className="detail-layout">
         <div className="detail-main">
           <section className="card">
-            <header className="card-header"><div><h2>Coordination opportunities</h2><p>Projects from other utilities near this one, highest score first</p></div></header>
+            <header className="card-header"><div><h2>Coordination opportunities</h2><p>Projects from other utilities near this one, closest first</p></div></header>
             {related.length ? <ul className="related">{related.map(o => <li key={o.id}>
               <button onClick={() => onOpenProject?.(o.partner_id)}>
                 <span className="org-mark" style={{background: PAIR_COLORS[1]}}>{initials(o.partner_owner)}</span>
                 <div><strong>{o.partner_name}</strong><small>{o.partner_owner} · {bandName(o.band)}</small></div>
                 <div className="related-facts"><span>{o.shared_substations.length ? `Shares ${o.shared_substations.join(', ')}` : miles(o.distance_km)}</span>
                   <span>{o.timeline?.overlap ? `${Math.round(o.timeline.overlap_days / 30.4)} mo overlap${o.timeline.illustrative ? ' (illustrative)' : o.timeline.estimated ? ' (est.)' : ''}` : o.timeline?.overlap === false ? 'No overlap' : 'Timing unknown'}</span></div>
-                <span className={`score-chip ${scoreClass(o.coordination_score)}`}>{Math.round(o.coordination_score)}/100</span>
                 <Icon name="arrowRight" size={15} />
               </button></li>)}</ul> : <p className="empty">No coordination candidates for this project.</p>}
           </section>

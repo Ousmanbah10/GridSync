@@ -24,7 +24,7 @@
 .pair-names { display: flex; flex-direction: column; gap: 4px; }
 .pair-names span { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.35; }
 .pair-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
-.pair-meta .score-chip { margin-left: auto; }
+.pair-meta .pair-overlap { margin-left: auto; font-weight: 500; color: var(--ink-2); }
 .hero-panel small { display: block; margin-top: 4px; font-size: 12px; color: var(--faint); }
 .pair-skeleton { display: flex; flex-direction: column; gap: 8px; }
 .pair-skeleton .skeleton { width: 80%; height: 14px; }

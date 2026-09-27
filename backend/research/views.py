@@ -71,7 +71,7 @@ def detail(request, project_id):
         {'project_record_ids': project['_id'], 'generated_by': GENERATOR, 'active': True},
         {'project_record_ids': 1, 'project_names': 1, 'owners': 1, 'distance_km': 1, 'distance_basis': 1, 'band': 1,
          'coordination_score': 1, 'distance_score': 1, 'shared_substations': 1, 'timeline': 1})
-        .sort([('coordination_score', -1), ('distance_km', 1)]).limit(12))
+        .sort([('distance_km', 1)]).limit(12))
     related = []
     for pair in pairs:
         index = 1 if pair['project_record_ids'][0] == project['_id'] else 0

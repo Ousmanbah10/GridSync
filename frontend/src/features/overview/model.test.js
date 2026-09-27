@@ -1,7 +1,7 @@
 import { timelineSummary } from './model.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { pairDisplayLocations, selectedProjectLocations, opportunitiesAtLocation, filterProjects, filterOpportunities, ownerColor, distanceLabel, scoreOf, OWNER_COLORS } from './model.js'
+import { pairDisplayLocations, selectedProjectLocations, opportunitiesAtLocation, filterProjects, filterOpportunities, ownerColor, distanceLabel, byProximity, OWNER_COLORS } from './model.js'
 const rows = [
   { project_record_id: '1', project_name: 'North upgrade', owner: 'A', project_type: 'Upgrade', in_service_year: 2030, status: 'Planning', state_codes: ['GA'] },
   { project_record_id: '2', project_name: 'South line', owner: 'B', project_type: 'New', in_service_year: 2031, status: 'Permitting', state_codes: ['SC'] },
@@ -67,8 +67,6 @@ test('shared substation pairs are labeled, not shown as 0.00 mi', () => {
   assert.equal(distanceLabel({distance_km: 0, distance_basis: 'shared_substation_only', shared_substations: ['Woodside']}), 'Shares Woodside')
   assert.equal(distanceLabel({distance_km: 0, distance_basis: 'approximate_corridor', corridor_crossing: true}), 'Corridors cross (approx.)')
   assert.equal(distanceLabel({distance_km: 3.24, distance_basis: 'substation'}), '2.0 mi')
-  assert.equal(scoreOf({coordination_score: 82.5, distance_score: 100}), 82.5)
-  assert.equal(scoreOf({distance_score: 40}), 40)
 })
 
 
@@ -80,4 +78,9 @@ test('projected timelines use both completion targets without inventing overlap'
   assert.equal(timelineSummary({in_service_years: [null, null]}).value, 'Years not supplied')
   assert.equal(timelineSummary({timeline: {overlap: false}, in_service_years: [2030, 2030]}).value, 'No construction overlap')
   assert.equal(timelineSummary({timeline: {overlap: true, overlap_days: 60}}).value, '60 days overlap')
+})
+
+test('pairs rank by distance, and longer construction overlap breaks ties', () => {
+  const far = {distance_km: 30}, near = {distance_km: 4}, nearLonger = {distance_km: 4, timeline: {overlap_days: 300}}
+  assert.deepEqual([far, near, nearLonger].sort(byProximity), [nearLonger, near, far])
 })

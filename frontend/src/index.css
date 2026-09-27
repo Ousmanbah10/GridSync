@@ -132,10 +132,6 @@ select.control, .field select { appearance: none; -webkit-appearance: none; padd
 .chip-warn { background: var(--warn-soft); color: #b45309; }
 .chip-danger { background: var(--danger-soft); color: var(--danger); }
 .chip-outline { background: transparent; border: 1px solid var(--line-strong); color: var(--muted); }
-.score-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.score-high { background: #dcfce7; color: #15803d; }
-.score-mid { background: #fef3c7; color: #b45309; }
-.score-low { background: #ffedd5; color: #c2410c; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .org-mark { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; letter-spacing: 0; }
 

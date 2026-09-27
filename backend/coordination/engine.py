@@ -157,7 +157,8 @@ def rank_projects(projects, substations, *, include_inactive=False, include_conc
                 for resource in band['resources']],
             'qualification': qualification,
         })
-    order = lambda o: (-o['coordination_score'], o['priority'], o['distance_km'], tuple(map(str, o['project_record_ids'])))
+    # The challenge ranks by location first: closest pairs lead, construction overlap breaks ties.
+    order = lambda o: (o['distance_km'], -((o['timeline'] or {}).get('overlap_days') or 0), o['priority'], tuple(map(str, o['project_record_ids'])))
     opportunities = []
     for rows in candidates.values():
         # Segments and alternative route options of the same two projects collapse to one opportunity.

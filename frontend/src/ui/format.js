@@ -19,7 +19,6 @@ export function orgColor(owner) {
   return OWNER_COLORS[hash % OWNER_COLORS.length]
 }
 
-export const scoreClass = score => score >= 85 ? 'score-high' : score >= 75 ? 'score-mid' : 'score-low'
 
 export function money(cost, compact = true) {
   const amount = Number(cost?.amount)
@@ -53,3 +52,11 @@ export const costTag = cost => cost?.basis === 'illustrative' ? 'Illustrative' :
 // Public company websites for utilities we know; everything else is looked up by the user.
 const SITES = [[/dominion/i, 'https://www.dominionenergy.com'], [/georgia power/i, 'https://www.georgiapower.com']]
 export const ownerSite = owner => SITES.find(([pattern]) => pattern.test(owner || ''))?.[1] || null
+
+// Published transmission-planning contact points (organizational, not personal). Sources:
+// https://www.scrtp.com/contact-us.html and https://www.southeasternrtp.com/
+const PUBLIC_CONTACTS = [
+  [/dominion/i, {name: 'Transmission Planning (SCRTP)', email: 'nsa_scrtp_com@dominionenergy.com', phone: '803-217-2038', source: 'https://www.scrtp.com/contact-us.html'}],
+  [/georgia power/i, {name: 'Southern Company Transmission Planning (SERTP)', email: 'southeasternrtp@southernco.com', phone: '', source: 'https://www.southeasternrtp.com/'}],
+]
+export const publicContact = owner => PUBLIC_CONTACTS.find(([pattern]) => pattern.test(owner || ''))?.[1] || null

@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
-import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { basisLabel, delayLabel, distanceLabel, miles, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
+import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel } from '../../ui/format'
+import { basisLabel, delayLabel, distanceLabel, miles, overlapLabel, byProximity, scheduleTag, timelineSummary, PAIR_COLORS } from './model'
 import CoordinationPlan from './CoordinationPlan'
 import './CoordinationPanel.css'
 
 const displayDate = value => value ? String(value).slice(0, 10) : null
 const capitalize = text => text.charAt(0).toUpperCase() + text.slice(1)
-const SCORE_PARTS = [['proximity', 'Proximity', 50], ['timeline', 'Timeline', 30], ['compatibility', 'Compatibility', 20]]
 
 export default function CoordinationPanel({ data, loading, opportunities, selectedId, onSelect, onMap, onAnalyze, onOpenProject }) {
   const [anchor, setAnchor] = useState('')
@@ -18,7 +17,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
   const byId = new Map(data?.projects.map(p => [p.project_record_id, p]) || [])
   const rows = opportunities.filter(o => (!anchor || o.project_record_ids.includes(anchor)) &&
     [...(o.project_names || []), ...(o.owners || [])].join(' ').toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => scoreOf(b) - scoreOf(a) || a.distance_km - b.distance_km)
+    .sort(byProximity)
   const active = rows.find(o => o.id === selectedId) || rows[0]
   const schedule = timelineSummary(active)
   const projects = active?.project_record_ids.map(id => byId.get(id)) || []
@@ -26,7 +25,6 @@ export default function CoordinationPanel({ data, loading, opportunities, select
   function changeAnchor(value) { setAnchor(value); setLimit(30); setDraft(null); onSelect(null) }
   const actions = active?.shared_resources?.map(r => r.resource) || []
   const shared = active?.shared_substations?.length > 0
-  const score = Math.round(scoreOf(active))
 
   return <section className="coordination">
     <aside className="card candidates">
@@ -39,7 +37,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
         <button key={o.id} role="option" aria-selected={active?.id === o.id} className="candidate" onClick={() => choose(o.id)}>
           <span className={`candidate-rank ${index === 0 ? 'top' : ''}`}>{index + 1}</span>
           <div className="candidate-body">
-            <div className="candidate-title"><strong>{o.project_names?.join(' – ')}</strong><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
+            <div className="candidate-title"><strong>{o.project_names?.join(' – ')}</strong></div>
             <small className="candidate-owners">{ownerShort(o.owners?.[0])} <Icon name="link" size={12} /> {ownerShort(o.owners?.[1])}</small>
             <small>{distanceLabel(o)} · {overlapLabel(o)}</small>
             {o.project_record_ids.some(id => byId.get(id)?.schedule_flag?.kind === 'delayed') && <small className="risk-note"><Icon name="alert" size={12} />Schedule risk: a project was delayed in its latest filing</small>}
@@ -57,7 +55,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
           <div className="comparison-title"><h2>{active.project_names?.join(' – ')}</h2></div>
         </div>
         <div className="comparison-actions">
-          <button className="btn btn-primary" onClick={() => setDraft('plan')}><Icon name="calendar" size={15} />Plan & Propose Meeting</button>
+          <button className="btn btn-primary" onClick={() => setDraft('plan')}><Icon name="mail" size={15} />Contact & Invite</button>
         </div>
       </header>
 
@@ -82,9 +80,6 @@ export default function CoordinationPanel({ data, loading, opportunities, select
       <div className="metric-row">
         <article className="card metric"><span className="metric-icon"><Icon name="pin" size={22} /></span><div><h3>Geographic Overlap</h3><strong className="num">{shared ? active.shared_substations.join(', ') : miles(active.distance_km)}</strong><p>{shared ? basisLabel(active) : `Within the 25-mile rule · ${active.distance_basis === 'approximate_corridor' ? 'approximate corridor' : 'mapped points'}`}</p><button className="link-button" onClick={() => onMap(active.id)}>Show on map<Icon name="arrowRight" size={13} /></button></div></article>
         <article className="card metric"><span className="metric-icon violet"><Icon name="calendar" size={22} /></span><div><h3>{schedule.title}</h3><strong>{overlapLabel(active)}</strong><p>{schedule.detail}</p></div></article>
-        <article className="card metric"><span className="metric-icon green"><Icon name="chart" size={22} /></span><div><h3>Coordination Score</h3><strong className="num score-number">{score}<small>/100</small></strong>
-          {active.score_breakdown ? <div className="score-parts">{SCORE_PARTS.map(([key, label, max]) => <div key={key}><span>{label}</span><i><b style={{width: `${(active.score_breakdown[key] / max) * 100}%`}} /></i><span className="num">{active.score_breakdown[key]}/{max}</span></div>)}</div> : <p>Distance only; recalculate to get the full score.</p>}
-        </div></article>
       </div>
 
       <section className="card">

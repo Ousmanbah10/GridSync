@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from '../../ui/Icon'
-import { ownerShort, scoreClass } from '../../ui/format'
-import { bandName, distanceLabel, scoreOf, PAIR_COLORS } from '../overview/model'
+import { ownerShort } from '../../ui/format'
+import { bandName, distanceLabel, overlapLabel, PAIR_COLORS } from '../overview/model'
 import './HomePage.css'
 
 const FEATURES = [
@@ -58,11 +58,11 @@ export default function HomePage({ onNavigate }) {
           <p className="hero-note"><Icon name="shield" size={15} />Built on public utility planning data. Every record links to its source.</p>
         </div>
         <aside className="hero-panel" aria-label="Top ranked coordination candidates">
-          <header><span>Top ranked pairs</span><button className="link-button" onClick={() => onNavigate('coordination')}>See all<Icon name="arrowRight" size={13} /></button></header>
+          <header><span>Closest cross-utility pairs</span><button className="link-button" onClick={() => onNavigate('coordination')}>See all<Icon name="arrowRight" size={13} /></button></header>
           <ol>{(top || [null, null, null]).map((o, i) => <li key={o?._id || i}>
             {o ? <>
               <div className="pair-names">{o.project_names?.map((name, index) => <span key={index}><i className="dot" style={{background: PAIR_COLORS[index]}} />{name}</span>)}</div>
-              <div className="pair-meta"><span>{ownerShort(o.owners?.[0])} ↔ {ownerShort(o.owners?.[1])}</span><span>{distanceLabel(o)}</span><span className={`score-chip ${scoreClass(scoreOf(o))}`}>{Math.round(scoreOf(o))}/100</span></div>
+              <div className="pair-meta"><span>{ownerShort(o.owners?.[0])} ↔ {ownerShort(o.owners?.[1])}</span><span>{distanceLabel(o)}</span><span className="pair-overlap">{overlapLabel(o)}</span></div>
               <small>{bandName(o.band)}</small>
             </> : <div className="pair-skeleton"><span className="skeleton" /><span className="skeleton" /></div>}
           </li>)}
