@@ -81,7 +81,7 @@ export default function CoordinationPlan({ opportunity, projects, onClose }) {
       <div className="plan-body">
         <section>
           <h3>Companies</h3>
-          <div className="company-grid">{projects.map((p, i) => { const owner = owners[i], contact = contactFor(owner), published = publicContact(owner), site = ownerSite(owner); return <article className="company" key={i} style={{'--pair': PAIR_COLORS[i]}}>
+          <div className="company-grid">{projects.map((p, i) => { const owner = owners[i], contact = contactFor(owner), site = ownerSite(owner); return <article className="company" key={i} style={{'--pair': PAIR_COLORS[i]}}>
             <header><span className="org-mark" style={{background: PAIR_COLORS[i]}}>{initials(owner)}</span><div><strong>{owner}</strong>{site && <a href={site} target="_blank" rel="noreferrer">{site.replace('https://www.', '')}<Icon name="external" size={11} /></a>}</div></header>
             <dl>
               <div><dt>Project</dt><dd>{p?.project_name}</dd></div>
@@ -92,7 +92,6 @@ export default function CoordinationPlan({ opportunity, projects, onClose }) {
             <div className="contact-fields"><span>Coordination contact</span>
               {[['name', 'Team or name'], ['email', 'Email'], ['phone', 'Phone']].map(([field, label]) =>
                 <input key={field} className="control" type={field === 'email' ? 'email' : 'text'} aria-label={`${owner} contact ${label}`} placeholder={label} value={contact[field] || ''} onChange={e => setContact(owner, field, e.target.value)} />)}
-              {published && <a className="contact-source" href={published.source} target="_blank" rel="noreferrer"><Icon name="check" size={12} />Published planning contact · {published.source.replace(/^https:\/\/(www\.)?/, '').split('/')[0]}</a>}
             </div>
           </article> })}</div>
         </section>
