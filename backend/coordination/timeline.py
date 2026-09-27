@@ -35,8 +35,10 @@ def compare_timelines(left, right):
     start, end = max(i[0] for i in intervals), min(i[1] for i in intervals)
     days = max(0, (end - start).days + 1)
     estimated = any(b in ESTIMATED_BASES for b in bases)
+    illustrative = 'illustrative' in bases
     return {'status': 'overlap' if days else 'no_overlap', 'overlap': bool(days), 'overlap_days': days,
             'start_date': start.isoformat() if days else None, 'end_date': end.isoformat() if days else None,
-            'bases': bases, 'estimated': estimated,
-            'reason': ('Intersection of construction windows; at least one is estimated from a published spending schedule.'
+            'bases': bases, 'estimated': estimated, 'illustrative': illustrative,
+            'reason': ('Illustrative demo schedule, not filed dates.' if illustrative else
+                       'Intersection of construction windows; at least one is estimated from a published spending schedule.'
                        if estimated else 'Inclusive intersection of documented construction intervals.')}

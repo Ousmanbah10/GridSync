@@ -178,7 +178,7 @@ def analyze_pair(opportunity, projects):
         'Use ONLY the supplied records and screening facts; no outside knowledge or web search. '
         'Distances are screening values; say when geometry is approximate. In-service years are not construction dates. '
         'Construction windows with basis annual_spending_schedule are estimates from a spending schedule; say so. '
-        'A project_cost with basis illustrative is a demo placeholder, not a utility figure; never present it as real. '
+        'A project_cost or construction with basis illustrative is a demo placeholder, not a utility figure; say it is illustrative. '
         'Cite utility documents by document name and page from document_evidence when you use their facts. '
         'Never state dollar savings, percentages, or dates that are not in the data. In cost_outlook, describe which '
         'published costs exist and what would be needed to estimate savings; do not produce a number. '

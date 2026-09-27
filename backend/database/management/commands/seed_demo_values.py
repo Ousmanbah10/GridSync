@@ -15,6 +15,7 @@ class Command(BaseCommand):
         parser.add_argument('--source-id', required=True)
         parser.add_argument('--file', type=Path, default=DEFAULT)
         parser.add_argument('--remove', action='store_true')
+        parser.add_argument('--shift-years', type=int, help='Illustrative schedule: move construction and in-service dates forward N years.')
 
     def handle(self, *args, **options):
         try:
@@ -23,7 +24,15 @@ class Command(BaseCommand):
             if options['remove']:
                 result = db.projects.update_many({'source_id': options['source_id'], 'project_cost.basis': 'illustrative'},
                                                  {'$set': {'project_cost': None, 'updated_at': now}})
-                self.stdout.write(self.style.SUCCESS(f'Removed illustrative values from {result.modified_count} projects.'))
+                restored = 0
+                for project in db.projects.find({'source_id': options['source_id'], 'original_schedule': {'$exists': True}}):
+                    db.projects.update_one({'_id': project['_id']}, {'$set': project['original_schedule'] | {'updated_at': now},
+                                                                     '$unset': {'original_schedule': ''}})
+                    restored += 1
+                self.stdout.write(self.style.SUCCESS(f'Removed illustrative costs from {result.modified_count} projects; restored {restored} schedules.'))
+                return
+            if options['shift_years']:
+                self.shift(db, options['source_id'], options['shift_years'], now)
                 return
             spec = json.loads(options['file'].read_text())
             filled = 0
@@ -46,3 +55,22 @@ class Command(BaseCommand):
             raise CommandError(str(exc)) from None
         finally:
             close_connection()
+
+    def shift(self, db, source_id, years, now):
+        """Move every schedule forward together, so pair overlaps are unchanged. Originals are kept for --remove."""
+        def later(value):
+            return value.replace(year=value.year + years) if value else None
+        shifted = 0
+        for project in db.projects.find({'source_id': source_id}):
+            original = project.get('original_schedule') or {key: project.get(key) for key in ('construction', 'in_service_date', 'in_service_year')}
+            construction = original.get('construction') or {}
+            update = {'original_schedule': original, 'updated_at': now,
+                      'in_service_date': later(original.get('in_service_date')),
+                      'in_service_year': original['in_service_year'] + years if original.get('in_service_year') else None}
+            if construction.get('start_date') and construction.get('end_date'):
+                update['construction'] = {'start_date': later(construction['start_date']), 'end_date': later(construction['end_date']),
+                    'basis': 'illustrative', 'original_basis': construction.get('basis'),
+                    'note': f'Illustrative demo schedule: filed dates moved forward {years} years. Filed dates are in the document citations.'}
+            db.projects.update_one({'_id': project['_id']}, {'$set': update})
+            shifted += 1
+        self.stdout.write(self.style.SUCCESS(f'Shifted {shifted} schedules forward {years} years. Rerun rank_opportunities --save to refresh scores.'))

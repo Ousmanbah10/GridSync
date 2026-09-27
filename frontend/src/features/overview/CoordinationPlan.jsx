@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Icon from '../../ui/Icon'
 import { costTag, initials, money, ownerSite, placeLabel } from '../../ui/format'
-import { distanceLabel, overlapLabel, timelineSummary, bandName, PAIR_COLORS } from './model'
+import { distanceLabel, overlapLabel, scheduleTag, timelineSummary, bandName, PAIR_COLORS } from './model'
 import './CoordinationPlan.css'
 
 const CONTACT_KEY = 'gridsync.contacts'
@@ -99,7 +99,7 @@ export default function CoordinationPlan({ opportunity, projects, onClose }) {
             <dl>
               <div><dt>Project</dt><dd>{p?.project_name}</dd></div>
               <div><dt>Location</dt><dd>{placeLabel(p)}</dd></div>
-              <div><dt>Schedule</dt><dd>{p?.construction?.start_date ? `${String(p.construction.start_date).slice(0, 10)} → ${String(p.construction.end_date).slice(0, 10)}` : 'Not supplied'}</dd></div>
+              <div><dt>Schedule</dt><dd>{p?.construction?.start_date ? `${String(p.construction.start_date).slice(0, 10)} → ${String(p.construction.end_date).slice(0, 10)}${scheduleTag(p.construction)}` : 'Not supplied'}</dd></div>
               <div><dt>Budget</dt><dd>{money(p?.project_cost) || 'Not published'}{costTag(p?.project_cost) && <span className="chip chip-warn tag">{costTag(p.project_cost)}</span>}</dd></div>
             </dl>
             <div className="contact-fields"><span>Coordination contact</span>
