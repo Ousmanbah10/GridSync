@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Icon from '../../ui/Icon'
 import { resourceIcon } from '../../ui/resourceIcon'
 import { costTag, initials, money, ownerShort, placeLabel, scheduleLabel, scoreClass } from '../../ui/format'
-import { bandName, basisLabel, distanceLabel, overlapLabel, priorityLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
+import { basisLabel, distanceLabel, overlapLabel, scheduleTag, scoreOf, timelineSummary, PAIR_COLORS } from './model'
 import CoordinationPlan from './CoordinationPlan'
 import './CoordinationPanel.css'
 
@@ -12,14 +12,13 @@ const SCORE_PARTS = [['proximity', 'Proximity', 50], ['timeline', 'Timeline', 30
 
 export default function CoordinationPanel({ data, loading, opportunities, selectedId, onSelect, onMap, onAnalyze, onOpenProject }) {
   const [anchor, setAnchor] = useState('')
-  const [sort, setSort] = useState('score')
   const [search, setSearch] = useState('')
   const [draft, setDraft] = useState(null)
   const [limit, setLimit] = useState(30)
   const byId = new Map(data?.projects.map(p => [p.project_record_id, p]) || [])
   const rows = opportunities.filter(o => (!anchor || o.project_record_ids.includes(anchor)) &&
     [...(o.project_names || []), ...(o.owners || [])].join(' ').toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sort === 'distance' ? a.distance_km - b.distance_km : scoreOf(b) - scoreOf(a) || a.distance_km - b.distance_km)
+    .sort((a, b) => scoreOf(b) - scoreOf(a) || a.distance_km - b.distance_km)
   const active = rows.find(o => o.id === selectedId) || rows[0]
   const schedule = timelineSummary(active)
   const projects = active?.project_record_ids.map(id => byId.get(id)) || []
@@ -28,12 +27,10 @@ export default function CoordinationPanel({ data, loading, opportunities, select
   const actions = active?.shared_resources?.map(r => r.resource) || []
   const shared = active?.shared_substations?.length > 0
   const score = Math.round(scoreOf(active))
-  const [priority, priorityClass] = priorityLabel(active)
 
   return <section className="coordination">
     <aside className="card candidates">
       <div className="candidates-controls">
-        <select className="control" aria-label="Sort opportunities" value={sort} onChange={e => setSort(e.target.value)}><option value="score">Sort by: Highest score</option><option value="distance">Sort by: Closest distance</option></select>
         <span className="search-box"><Icon name="search" size={14} /><input className="control" aria-label="Search opportunities" placeholder="Search opportunities…" value={search} onChange={e => {setSearch(e.target.value); setLimit(30); setDraft(null)}} /></span>
         <select className="control" aria-label="Compare a project" value={anchor} onChange={e => changeAnchor(e.target.value)}><option value="">All projects</option>{data?.projects.map(p => <option value={p.project_record_id} key={p.project_record_id}>{p.project_name}</option>)}</select>
       </div>
@@ -56,8 +53,7 @@ export default function CoordinationPanel({ data, loading, opportunities, select
     <div className="comparison">{active ? <>
       <header className="comparison-header">
         <div>
-          <div className="comparison-title"><h2>{active.project_names?.join(' – ')}</h2><span className={`score-chip ${scoreClass(score)}`}>{score}/100</span></div>
-          <div className="comparison-tags"><span className={`chip ${priorityClass}`}>{priority}</span><span className="chip">{bandName(active.band)}</span></div>
+          <div className="comparison-title"><h2>{active.project_names?.join(' – ')}</h2></div>
         </div>
         <div className="comparison-actions">
           <button className="btn btn-primary" onClick={() => setDraft('plan')}><Icon name="calendar" size={15} />Plan & Propose Meeting</button>

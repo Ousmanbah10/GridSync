@@ -45,6 +45,7 @@
 .section-head h2 { font-size: clamp(26px, 3vw, 34px); line-height: 1.2; letter-spacing: -.02em; margin-bottom: 12px; }
 .section-head p { font-size: 16px; color: var(--muted); line-height: 1.6; }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.feature-toggle { min-height: 142px; }
 .feature { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; opacity: 0; transform: translateY(18px);
   transition: opacity .55s ease-out var(--delay), transform .55s ease-out var(--delay), border-color .25s, box-shadow .25s; }
 .feature.seen { opacity: 1; transform: none; }
@@ -54,7 +55,7 @@
 .feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); transition: background .25s, color .25s, transform .35s; }
 .feature.open .feature-icon, .feature:hover .feature-icon { background: var(--accent); color: #fff; }
 .feature.open .feature-icon { transform: rotate(-8deg) scale(1.05); }
-.feature-text h3 { font-size: 17px; margin-bottom: 4px; }
+.feature-text h3 { font-size: 17px; margin-bottom: 6px; }
 .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.55; }
 .feature-plus { position: relative; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-strong); flex-shrink: 0; transition: transform .35s, background .25s, border-color .25s; }
 .feature-plus::before, .feature-plus::after { content: ''; position: absolute; left: 50%; top: 50%; width: 11px; height: 2px; margin: -1px 0 0 -5.5px; background: var(--ink-2); border-radius: 1px; transition: transform .35s; }
@@ -107,3 +108,7 @@
   .feature-grid, .band-list { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .feature { opacity: 1; transform: none; } }
+.site-photo { margin: 28px 0 0; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
+.site-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .6s ease; }
+.site-photo:hover img { transform: scale(1.04); }
+.site-photo figcaption { padding: 12px 16px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }

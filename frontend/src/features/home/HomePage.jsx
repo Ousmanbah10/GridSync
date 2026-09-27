@@ -84,7 +84,8 @@ export default function HomePage({ onNavigate }) {
     </div></section>
 
     <section className="section section-alt"><div className="container split">
-      <div className="section-head left"><span className="eyebrow">How it works</span><h2>From spreadsheet to shared plan</h2><p>Three steps, with the source kept attached the whole way.</p></div>
+      <div className="section-head left"><span className="eyebrow">How it works</span><h2>From spreadsheet to shared plan</h2><p>Three steps, with the source kept attached the whole way.</p>
+        <figure className="site-photo"><img src="/substation-site.jpg" alt="Aerial view of a new substation under construction" loading="lazy" /><figcaption>Two projects this close can share crews, cranes, and laydown yards.</figcaption></figure></div>
       <ol className="steps">{STEPS.map(([title, text], i) => <li key={title}><span className="num">{String(i + 1).padStart(2, '0')}</span><div><h3>{title}</h3><p>{text}</p></div></li>)}</ol>
     </div></section>
 
